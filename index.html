@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FuelPulse Pro | Fuel Consumption Counter & Expense Tracker</title>
+  <meta name="description" content="Calculate fuel consumption, track gas mileage, plan trip fuel costs, and analyze vehicle expenses with FuelPulse Pro.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Navbar / Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="logo-icon">
+          <i data-lucide="fuel"></i>
+        </div>
+        <div class="logo-text">
+          <h1>FuelPulse <span>Pro</span></h1>
+          <p class="subtitle">Fuel Economy & Expense Tracker</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Vehicle Selector -->
+        <div class="vehicle-selector-wrapper">
+          <i data-lucide="car" class="select-icon"></i>
+          <select id="activeVehicleSelect" class="styled-select" aria-label="Select active vehicle">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <button id="btnQuickAddRefuel" class="btn btn-primary">
+          <i data-lucide="plus-circle"></i>
+          <span>Add Refuel</span>
+        </button>
+
+        <button id="btnThemeToggle" class="btn-icon" aria-label="Toggle theme" title="Toggle Theme">
+          <i data-lucide="sun" class="sun-icon"></i>
+          <i data-lucide="moon" class="moon-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" aria-label="Main Navigation">
+      <button class="nav-tab active" data-tab="calculator">
+        <i data-lucide="calculator"></i>
+        <span>Quick Calculator</span>
+      </button>
+      <button class="nav-tab" data-tab="logs">
+        <i data-lucide="clipboard-list"></i>
+        <span>Refuel Log</span>
+      </button>
+      <button class="nav-tab" data-tab="planner">
+        <i data-lucide="navigation"></i>
+        <span>Trip Planner</span>
+      </button>
+      <button class="nav-tab" data-tab="analytics">
+        <i data-lucide="line-chart"></i>
+        <span>Analytics</span>
+      </button>
+      <button class="nav-tab" data-tab="vehicles">
+        <i data-lucide="car"></i>
+        <span>Vehicles</span>
+      </button>
+      <button class="nav-tab" data-tab="settings">
+        <i data-lucide="settings"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Views -->
+    <main class="main-content">
+      
+      <!-- TAB 1: QUICK CALCULATOR -->
+      <section id="tab-calculator" class="tab-view active">
+        <div class="view-header">
+          <h2>Instant Fuel Economy Calculator</h2>
+          <p>Calculate your vehicle's fuel consumption and trip costs on the fly.</p>
+        </div>
+
+        <div class="calculator-grid">
+          <!-- Inputs Card -->
+          <div class="glass-card calculator-inputs">
+            <h3><i data-lucide="sliders"></i> Input Parameters</h3>
+
+            <div class="form-group">
+              <label for="calcDistance">
+                Distance Traveled (<span class="unit-dist-label">km</span>)
+              </label>
+              <div class="input-with-suffix">
+                <input type="number" id="calcDistance" value="500" min="1" step="0.1" placeholder="e.g. 500">
+                <span class="suffix unit-dist-label">km</span>
+              </div>
+              <input type="range" id="calcDistanceRange" min="10" max="2000" step="10" value="500" class="styled-range">
+            </div>
+
+            <div class="form-group">
+              <label for="calcVolume">
+                Fuel Consumed / Refueled (<span class="unit-vol-label">L</span>)
+              </label>
+              <div class="input-with-suffix">
+                <input type="number" id="calcVolume" value="38" min="0.1" step="0.1" placeholder="e.g. 38">
+                <span class="suffix unit-vol-label">L</span>
+              </div>
+              <input type="range" id="calcVolumeRange" min="1" max="150" step="1" value="38" class="styled-range">
+            </div>
+
+            <div class="form-group">
+              <label for="calcPrice">
+                Price per <span class="unit-vol-label">L</span> (<span class="currency-label">$</span>)
+              </label>
+              <div class="input-with-prefix">
+                <span class="prefix currency-label">$</span>
+                <input type="number" id="calcPrice" value="1.65" min="0" step="0.01" placeholder="e.g. 1.65">
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Display Card -->
+          <div class="glass-card calculator-results">
+            <h3><i data-lucide="gauge"></i> Efficiency Metrics</h3>
+
+            <!-- Hero Result Card -->
+            <div class="hero-metric-card">
+              <div class="metric-label">Fuel Consumption</div>
+              <div class="hero-value-wrapper">
+                <span id="resL100km" class="hero-value">7.60</span>
+                <span class="hero-unit">L/100km</span>
+              </div>
+              <div class="efficiency-badge" id="resEfficiencyRating">
+                <i data-lucide="sparkles"></i> Good Efficiency
+              </div>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="mini-metric">
+                <div class="mini-label">km per Liter</div>
+                <div id="resKmL" class="mini-value">13.16</div>
+                <div class="mini-unit">km/L</div>
+              </div>
+
+              <div class="mini-metric">
+                <div class="mini-label">US Economy</div>
+                <div id="resMpgUs" class="mini-value">30.95</div>
+                <div class="mini-unit">MPG</div>
+              </div>
+
+              <div class="mini-metric">
+                <div class="mini-label">UK Economy</div>
+                <div id="resMpgUk" class="mini-value">37.17</div>
+                <div class="mini-unit">MPG</div>
+              </div>
+            </div>
+
+            <hr class="divider">
+
+            <h3><i data-lucide="coins"></i> Financial Breakdown</h3>
+            <div class="cost-summary-list">
+              <div class="cost-item">
+                <span>Total Fuel Cost</span>
+                <strong id="resTotalCost" class="highlight-cost">$62.70</strong>
+              </div>
+              <div class="cost-item">
+                <span>Cost per <span class="unit-dist-label">km</span></span>
+                <strong id="resCostPerKm">$0.125</strong>
+              </div>
+              <div class="cost-item">
+                <span>Cost for 100 <span class="unit-dist-label">km</span></span>
+                <strong id="resCostFor100">$12.54</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: REFUEL LOG TRACKER -->
+      <section id="tab-logs" class="tab-view">
+        <div class="view-header flex-between">
+          <div>
+            <h2>Refueling Log & Fuel History</h2>
+            <p>Track fill-ups, monitor real-world fuel economy, and manage expenses.</p>
+          </div>
+          <button id="btnAddLogTab" class="btn btn-primary">
+            <i data-lucide="plus"></i> Add New Refuel
+          </button>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="glass-card filter-bar">
+          <div class="search-input-wrapper">
+            <i data-lucide="search"></i>
+            <input type="text" id="logSearchInput" placeholder="Search by station, fuel type, or notes...">
+          </div>
+
+          <div class="filter-actions">
+            <select id="logFilterTank" class="styled-select small">
+              <option value="all">All Tanks</option>
+              <option value="full">Full Tank Only</option>
+              <option value="partial">Partial Tank</option>
+            </select>
+            <button id="btnExportCSV" class="btn btn-secondary small">
+              <i data-lucide="download"></i> Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="glass-card table-container">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Odometer</th>
+                <th>Distance</th>
+                <th>Volume</th>
+                <th>Price/Unit</th>
+                <th>Total Spent</th>
+                <th>Actual L/100km</th>
+                <th>Station</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+          <div id="logsEmptyState" class="empty-state hidden">
+            <i data-lucide="fuel" class="empty-icon"></i>
+            <p>No refuel logs found for this vehicle.</p>
+            <button id="btnEmptyAddLog" class="btn btn-primary small">Add First Log</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: TRIP PLANNER -->
+      <section id="tab-planner" class="tab-view">
+        <div class="view-header">
+          <h2>Trip Cost Estimator</h2>
+          <p>Plan upcoming trips and estimate precise fuel requirements and expense.</p>
+        </div>
+
+        <div class="calculator-grid">
+          <div class="glass-card">
+            <h3><i data-lucide="map-pin"></i> Trip Parameters</h3>
+            
+            <div class="form-group">
+              <label for="tripDistance">Planned Trip Distance (<span class="unit-dist-label">km</span>)</label>
+              <div class="input-with-suffix">
+                <input type="number" id="tripDistance" value="450" min="1" step="1">
+                <span class="suffix unit-dist-label">km</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tripConsumption">Vehicle Avg Consumption (L/100km)</label>
+              <div class="input-with-suffix">
+                <input type="number" id="tripConsumption" value="6.5" min="0.5" step="0.1">
+                <span class="suffix">L/100km</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tripPrice">Current Fuel Price per <span class="unit-vol-label">L</span></label>
+              <div class="input-with-prefix">
+                <span class="prefix currency-label">$</span>
+                <input type="number" id="tripPrice" value="1.65" min="0" step="0.01">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tripConditions">Driving Conditions / Terrain</label>
+              <select id="tripConditions" class="styled-select full-width">
+                <option value="0.9">Highway Driving (-10% fuel)</option>
+                <option value="1.0" selected>Combined / Normal Driving (Standard)</option>
+                <option value="1.2">City Traffic & Stop-and-Go (+20% fuel)</option>
+                <option value="1.35">Mountain Pass / Heavy Load / Off-Road (+35% fuel)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="glass-card planner-results">
+            <h3><i data-lucide="compass"></i> Estimated Trip Requirements</h3>
+
+            <div class="planner-stat-card">
+              <div class="stat-icon-wrapper blue">
+                <i data-lucide="droplet"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Estimated Fuel Needed</div>
+                <div id="tripFuelNeeded" class="stat-val">29.25 L</div>
+              </div>
+            </div>
+
+            <div class="planner-stat-card">
+              <div class="stat-icon-wrapper green">
+                <i data-lucide="wallet"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Estimated Trip Cost</div>
+                <div id="tripTotalCost" class="stat-val">$48.26</div>
+              </div>
+            </div>
+
+            <div class="planner-stat-card">
+              <div class="stat-icon-wrapper purple">
+                <i data-lucide="gauge"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Effective Driving Rate</div>
+                <div id="tripEffectiveRate" class="stat-val">6.5 L/100km</div>
+              </div>
+            </div>
+
+            <div class="info-banner">
+              <i data-lucide="info"></i>
+              <span>Pro Tip: Smooth acceleration and maintaining a steady 90-100 km/h speed can reduce fuel usage by up to 15%.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: ANALYTICS & REPORTS -->
+      <section id="tab-analytics" class="tab-view">
+        <div class="view-header">
+          <h2>Analytics & Efficiency Dashboard</h2>
+          <p>Comprehensive visualizations of your vehicle's performance trends and expenses.</p>
+        </div>
+
+        <!-- Summary KPI Cards -->
+        <div class="kpi-grid">
+          <div class="glass-card kpi-card">
+            <div class="kpi-header">
+              <span>Total Distance Logged</span>
+              <i data-lucide="milestone"></i>
+            </div>
+            <div id="kpiTotalDist" class="kpi-value">3,630 km</div>
+          </div>
+
+          <div class="glass-card kpi-card">
+            <div class="kpi-header">
+              <span>Total Fuel Consumed</span>
+              <i data-lucide="droplets"></i>
+            </div>
+            <div id="kpiTotalFuel" class="kpi-value">204.1 L</div>
+          </div>
+
+          <div class="glass-card kpi-card">
+            <div class="kpi-header">
+              <span>Total Fuel Spend</span>
+              <i data-lucide="receipt"></i>
+            </div>
+            <div id="kpiTotalSpend" class="kpi-value">$347.78</div>
+          </div>
+
+          <div class="glass-card kpi-card">
+            <div class="kpi-header">
+              <span>Avg Consumption</span>
+              <i data-lucide="activity"></i>
+            </div>
+            <div id="kpiAvgConsumption" class="kpi-value">5.62 L/100km</div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <!-- Line Chart -->
+          <div class="glass-card chart-card large">
+            <h3><i data-lucide="trending-down"></i> Fuel Efficiency Trend Over Time</h3>
+            <div class="chart-wrapper">
+              <canvas id="efficiencyTrendChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Bar Chart -->
+          <div class="glass-card chart-card">
+            <h3><i data-lucide="bar-chart-3"></i> Monthly Spending Breakdown</h3>
+            <div class="chart-wrapper">
+              <canvas id="monthlyExpenseChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Doughnut Chart -->
+          <div class="glass-card chart-card">
+            <h3><i data-lucide="pie-chart"></i> Refuel Stations Share</h3>
+            <div class="chart-wrapper">
+              <canvas id="stationShareChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: VEHICLES MANAGER -->
+      <section id="tab-vehicles" class="tab-view">
+        <div class="view-header flex-between">
+          <div>
+            <h2>Vehicle Garage</h2>
+            <p>Manage your fleet, customize vehicle targets, and switch active profiles.</p>
+          </div>
+          <button id="btnAddVehicleModal" class="btn btn-primary">
+            <i data-lucide="plus-circle"></i> Add Vehicle
+          </button>
+        </div>
+
+        <div id="vehiclesGrid" class="vehicles-grid">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- TAB 6: SETTINGS -->
+      <section id="tab-settings" class="tab-view">
+        <div class="view-header">
+          <h2>Application Settings & Data</h2>
+          <p>Customize measurement units, currency symbols, and manage data backups.</p>
+        </div>
+
+        <div class="settings-grid">
+          <div class="glass-card">
+            <h3><i data-lucide="sliders-horizontal"></i> Unit & Currency Preferences</h3>
+
+            <div class="form-group">
+              <label for="setCurrency">Preferred Currency Symbol</label>
+              <select id="setCurrency" class="styled-select full-width">
+                <option value="$">USD / CAD / AUD ($)</option>
+                <option value="€">Euro (€)</option>
+                <option value="£">British Pound (£)</option>
+                <option value="₴">Ukrainian Hryvnia (₴)</option>
+                <option value="¥">Japanese Yen / Yuan (¥)</option>
+                <option value="zł">Polish Złoty (zł)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="setDistanceUnit">Distance Unit</label>
+              <select id="setDistanceUnit" class="styled-select full-width">
+                <option value="km">Kilometers (km)</option>
+                <option value="mi">Miles (mi)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="setVolumeUnit">Volume Unit</label>
+              <select id="setVolumeUnit" class="styled-select full-width">
+                <option value="L">Liters (L)</option>
+                <option value="gal_us">US Gallons (gal)</option>
+                <option value="gal_uk">UK Gallons (gal)</option>
+              </select>
+            </div>
+
+            <button id="btnSaveSettings" class="btn btn-primary">
+              <i data-lucide="check"></i> Save Preferences
+            </button>
+          </div>
+
+          <div class="glass-card">
+            <h3><i data-lucide="database"></i> Data Backup & Reset</h3>
+            <p class="card-desc">Export your refueling data for Excel/Backup or import an existing backup.</p>
+
+            <div class="button-group-vertical">
+              <button id="btnExportJSON" class="btn btn-secondary">
+                <i data-lucide="file-json"></i> Export Full Backup (JSON)
+              </button>
+
+              <div class="file-upload-wrapper">
+                <input type="file" id="importJSONFile" accept=".json" class="file-input-hidden">
+                <button id="btnImportJSONTrigger" class="btn btn-secondary">
+                  <i data-lucide="upload"></i> Import Backup (JSON)
+                </button>
+              </div>
+
+              <hr class="divider">
+
+              <button id="btnResetSampleData" class="btn btn-danger">
+                <i data-lucide="rotate-ccw"></i> Reset to Sample Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL: ADD / EDIT REFUEL LOG -->
+    <div id="modalRefuel" class="modal-overlay hidden">
+      <div class="glass-card modal-container">
+        <div class="modal-header">
+          <h3 id="modalRefuelTitle">Add Refuel Entry</h3>
+          <button class="modal-close btn-icon" id="btnCloseRefuelModal">&times;</button>
+        </div>
+        <form id="formRefuel">
+          <input type="hidden" id="logId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="logDate">Date</label>
+              <input type="date" id="logDate" required>
+            </div>
+
+            <div class="form-group">
+              <label for="logOdometer">Odometer Reading (<span class="unit-dist-label">km</span>)</label>
+              <input type="number" id="logOdometer" min="0" step="1" required placeholder="e.g. 145630">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="logVolume">Fuel Volume (<span class="unit-vol-label">L</span>)</label>
+              <input type="number" id="logVolume" min="0.1" step="0.01" required placeholder="e.g. 52.4">
+            </div>
+
+            <div class="form-group">
+              <label for="logPrice">Price per Unit (<span class="currency-label">$</span>)</label>
+              <input type="number" id="logPrice" min="0" step="0.001" required placeholder="e.g. 1.67">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="logFuelType">Fuel Type</label>
+              <select id="logFuelType" class="styled-select full-width">
+                <option value="Gasoline 95">Gasoline 95</option>
+                <option value="Gasoline 98">Gasoline 98</option>
+                <option value="Diesel">Diesel</option>
+                <option value="LPG">LPG / Autogas</option>
+                <option value="Electric">Electric (kWh)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="logStation">Gas Station</label>
+              <input type="text" id="logStation" placeholder="e.g. Shell, BP, Exxon">
+            </div>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="logIsFullTank" checked>
+              <span>Full Tank Refuel (Used to calculate accurate consumption)</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="logNotes">Notes / Trip details (Optional)</label>
+            <input type="text" id="logNotes" placeholder="e.g. Vacation drive, highway cruising">
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelRefuelModal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Refuel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT VEHICLE -->
+    <div id="modalVehicle" class="modal-overlay hidden">
+      <div class="glass-card modal-container">
+        <div class="modal-header">
+          <h3 id="modalVehicleTitle">Add New Vehicle</h3>
+          <button class="modal-close btn-icon" id="btnCloseVehicleModal">&times;</button>
+        </div>
+        <form id="formVehicle">
+          <input type="hidden" id="vehicleId">
+
+          <div class="form-group">
+            <label for="vehName">Vehicle Display Name</label>
+            <input type="text" id="vehName" required placeholder="e.g. Daily Passat B8">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vehMake">Make / Brand</label>
+              <input type="text" id="vehMake" required placeholder="e.g. Volkswagen">
+            </div>
+            <div class="form-group">
+              <label for="vehModel">Model</label>
+              <input type="text" id="vehModel" required placeholder="e.g. Passat">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vehYear">Year</label>
+              <input type="number" id="vehYear" min="1950" max="2030" value="2020" required>
+            </div>
+            <div class="form-group">
+              <label for="vehFuelType">Fuel Type</label>
+              <select id="vehFuelType" class="styled-select full-width">
+                <option value="Diesel">Diesel</option>
+                <option value="Gasoline 95">Gasoline 95</option>
+                <option value="Gasoline 98">Gasoline 98</option>
+                <option value="LPG">LPG</option>
+                <option value="Electric">Electric</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vehTank">Tank Capacity (L)</label>
+              <input type="number" id="vehTank" min="1" step="1" value="60" required>
+            </div>
+            <div class="form-group">
+              <label for="vehTarget">Target Consumption (L/100km)</label>
+              <input type="number" id="vehTarget" min="0.1" step="0.1" value="5.5" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="vehOdometer">Initial Odometer Reading (<span class="unit-dist-label">km</span>)</label>
+            <input type="number" id="vehOdometer" min="0" step="1" value="100000" required>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelVehicleModal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Vehicle</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
