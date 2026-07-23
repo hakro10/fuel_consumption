@@ -5,6 +5,7 @@
 const STORAGE_KEYS = {
   VEHICLES: 'fuel_counter_vehicles',
   LOGS: 'fuel_counter_logs',
+  SERVICES: 'fuel_counter_services',
   SETTINGS: 'fuel_counter_settings',
   ACTIVE_VEHICLE_ID: 'fuel_counter_active_vehicle_id'
 };
@@ -111,6 +112,45 @@ const SAMPLE_LOGS = [
     station: 'Shell Premium',
     notes: 'Full tank refuel before vacation',
     calculatedL100km: 5.70
+  }
+];
+
+const SAMPLE_SERVICES = [
+  {
+    id: 'srv-1',
+    vehicleId: 'v-1',
+    date: '2026-05-15',
+    odometer: 140000,
+    type: 'Maintenance',
+    title: 'Full Synthetic Oil & Filter Change',
+    partsReplaced: 'Castrol Edge 5W-30 (5L), Mann Oil Filter, Air Filter',
+    cost: 135.00,
+    workshop: 'VW Authorized Dealer',
+    notes: 'Replaced cabin air filter as well.'
+  },
+  {
+    id: 'srv-2',
+    vehicleId: 'v-1',
+    date: '2026-06-20',
+    odometer: 143200,
+    type: 'Repair',
+    title: 'Front Brake Pads & Rotors Replacement',
+    partsReplaced: 'Brembo Front Brake Discs & Ceramic Pads',
+    cost: 280.00,
+    workshop: 'Bosch Auto Service',
+    notes: 'Brake fluid flushed and bled.'
+  },
+  {
+    id: 'srv-3',
+    vehicleId: 'v-2',
+    date: '2026-04-10',
+    odometer: 35000,
+    type: 'Maintenance',
+    title: 'Engine Oil & Inspection Service',
+    partsReplaced: 'Honda 0W-20 Full Synthetic, OEM Filter',
+    cost: 95.00,
+    workshop: 'Honda Main Dealer',
+    notes: 'Multi-point safety inspection passed.'
   }
 ];
 
@@ -256,12 +296,53 @@ export class StorageManager {
     }
   }
 
+  static getServices(vehicleId = null) {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.SERVICES);
+      let services = data ? JSON.parse(data) : (this.seedSampleServices(), SAMPLE_SERVICES);
+      services = services.filter(s => s && s.id !== undefined && s.id !== 'undefined');
+      if (vehicleId) {
+        return services.filter(s => String(s.vehicleId) === String(vehicleId));
+      }
+      return services;
+    } catch {
+      return this.seedSampleServices();
+    }
+  }
+
+  static seedSampleServices() {
+    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(SAMPLE_SERVICES));
+    return SAMPLE_SERVICES;
+  }
+
+  static saveService(serviceData) {
+    const services = this.getServices();
+    const existingIndex = serviceData.id ? services.findIndex(s => String(s.id) === String(serviceData.id)) : -1;
+
+    if (existingIndex >= 0) {
+      services[existingIndex] = { ...services[existingIndex], ...serviceData };
+    } else {
+      services.push({
+        id: 'srv-' + Date.now(),
+        ...serviceData
+      });
+    }
+
+    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(services));
+  }
+
+  static deleteService(id) {
+    const services = this.getServices().filter(s => String(s.id) !== String(id));
+    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(services));
+  }
+
   static exportData() {
     return JSON.stringify({
       version: '1.0',
       timestamp: new Date().toISOString(),
       vehicles: this.getVehicles(),
       logs: this.getLogs(),
+      services: this.getServices(),
       settings: this.getSettings()
     }, null, 2);
   }
@@ -274,6 +355,9 @@ export class StorageManager {
     if (data.logs && Array.isArray(data.logs)) {
       localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(data.logs));
     }
+    if (data.services && Array.isArray(data.services)) {
+      localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(data.services));
+    }
     if (data.settings) {
       this.saveSettings(data.settings);
     }
@@ -281,10 +365,12 @@ export class StorageManager {
 
   static resetToDefault() {
     localStorage.removeItem(STORAGE_KEYS.LOGS);
+    localStorage.removeItem(STORAGE_KEYS.SERVICES);
     localStorage.removeItem(STORAGE_KEYS.VEHICLES);
     localStorage.removeItem(STORAGE_KEYS.SETTINGS);
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_VEHICLE_ID);
     this.getVehicles();
     this.seedSampleLogs();
+    this.seedSampleServices();
   }
 }

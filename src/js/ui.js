@@ -28,12 +28,15 @@ export class UIManager {
     this.bindRefuelModalEvents();
     this.bindVehicleModalEvents();
     this.bindPlannerEvents();
+    this.bindServiceFilterEvents();
+    this.bindServiceModalEvents();
     this.bindSettingsEvents();
     this.bindThemeToggle();
 
     // Initial renders
     this.renderCalculator();
     this.renderLogsTable();
+    this.renderServicesTable();
     this.renderPlanner();
     this.renderVehiclesGarage();
   }
@@ -153,6 +156,7 @@ export class UIManager {
   refreshActiveView() {
     if (this.activeTab === 'calculator') this.renderCalculator();
     if (this.activeTab === 'logs') this.renderLogsTable();
+    if (this.activeTab === 'service') this.renderServicesTable();
     if (this.activeTab === 'planner') {
       this.prefillPlanner();
       this.renderPlanner();
@@ -450,6 +454,200 @@ export class UIManager {
     });
   }
 
+  // Service Log Tracker Logic
+  bindServiceFilterEvents() {
+    const search = document.getElementById('serviceSearchInput');
+    const filter = document.getElementById('serviceFilterType');
+
+    const updateTable = () => this.renderServicesTable();
+
+    search?.addEventListener('input', updateTable);
+    filter?.addEventListener('change', updateTable);
+  }
+
+  renderServicesTable() {
+    const tbody = document.getElementById('serviceTableBody');
+    const emptyState = document.getElementById('serviceEmptyState');
+    if (!tbody) return;
+
+    const activeVehicleId = StorageManager.getActiveVehicleId();
+    const services = StorageManager.getServices(activeVehicleId);
+
+    // Compute Service KPIs
+    const totalSpend = services.reduce((sum, s) => sum + (Number(s.cost) || 0), 0);
+    const serviceCount = services.length;
+    const sortedDesc = [...services].sort((a, b) => b.odometer - a.odometer);
+    const lastServiceOdo = sortedDesc.length > 0 ? `${sortedDesc[0].odometer.toLocaleString()} ${this.settings.distanceUnit}` : '-';
+    const avgCost = serviceCount > 0 ? totalSpend / serviceCount : 0;
+
+    const elSpend = document.getElementById('kpiTotalServiceSpend');
+    const elCount = document.getElementById('kpiTotalServiceCount');
+    const elLastOdo = document.getElementById('kpiLastServiceOdo');
+    const elAvgCost = document.getElementById('kpiAvgServiceCost');
+
+    if (elSpend) elSpend.textContent = formatCurrency(totalSpend, this.settings.currency);
+    if (elCount) elCount.textContent = serviceCount;
+    if (elLastOdo) elLastOdo.textContent = lastServiceOdo;
+    if (elAvgCost) elAvgCost.textContent = formatCurrency(avgCost, this.settings.currency);
+
+    // Filters
+    const searchQuery = document.getElementById('serviceSearchInput')?.value.toLowerCase().trim() || '';
+    const selectedType = document.getElementById('serviceFilterType')?.value || 'all';
+
+    const filtered = sortedDesc.filter(s => {
+      const matchSearch = !searchQuery || 
+        (s.title && s.title.toLowerCase().includes(searchQuery)) ||
+        (s.partsReplaced && s.partsReplaced.toLowerCase().includes(searchQuery)) ||
+        (s.workshop && s.workshop.toLowerCase().includes(searchQuery)) ||
+        (s.notes && s.notes.toLowerCase().includes(searchQuery));
+
+      const matchType = selectedType === 'all' || s.type === selectedType;
+
+      return matchSearch && matchType;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '';
+      if (emptyState) emptyState.classList.remove('hidden');
+    } else {
+      if (emptyState) emptyState.classList.add('hidden');
+      tbody.innerHTML = filtered.map(s => {
+        const categoryClass = s.type === 'Repair' ? 'badge-danger' : (s.type === 'Maintenance' ? 'badge-primary' : 'badge-tag');
+        return `
+          <tr>
+            <td><strong>${s.date}</strong></td>
+            <td>${s.odometer ? s.odometer.toLocaleString() : '-'} ${this.settings.distanceUnit}</td>
+            <td><span class="badge-tag ${categoryClass}">${s.type || 'Maintenance'}</span></td>
+            <td><strong>${s.title || '-'}</strong></td>
+            <td style="font-size: 0.82rem;">${s.partsReplaced || '-'}</td>
+            <td><strong>${formatCurrency(s.cost || 0, this.settings.currency)}</strong></td>
+            <td>${s.workshop || '-'}</td>
+            <td>
+              <button class="btn btn-secondary small btn-edit-service" data-id="${s.id}" title="Edit">
+                <i data-lucide="edit-2"></i>
+              </button>
+              <button class="btn btn-danger small btn-delete-service" data-id="${s.id}" title="Delete">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+
+    // Bind Edit/Delete buttons
+    tbody.querySelectorAll('.btn-edit-service').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const srv = services.find(s => String(s.id) === String(id));
+        if (srv) this.openServiceModal(srv);
+      });
+    });
+
+    tbody.querySelectorAll('.btn-delete-service').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        if (confirm('Are you sure you want to delete this service record?')) {
+          StorageManager.deleteService(id);
+          this.renderServicesTable();
+          this.showToast('Service record deleted');
+        }
+      });
+    });
+  }
+
+  // Service Modal Handling
+  openServiceModal(service = null) {
+    const modal = document.getElementById('modalService');
+    const title = document.getElementById('modalServiceTitle');
+    const form = document.getElementById('formService');
+    if (!modal || !form) return;
+
+    form.reset();
+
+    const activeVehicleId = StorageManager.getActiveVehicleId();
+    const services = StorageManager.getServices(activeVehicleId);
+    const logs = StorageManager.getLogs(activeVehicleId);
+
+    if (service) {
+      title.textContent = 'Edit Service Record';
+      document.getElementById('serviceId').value = service.id;
+      document.getElementById('serviceDate').value = service.date;
+      document.getElementById('serviceOdometer').value = service.odometer;
+      document.getElementById('serviceType').value = service.type || 'Maintenance';
+      document.getElementById('serviceTitle').value = service.title || '';
+      document.getElementById('serviceParts').value = service.partsReplaced || '';
+      document.getElementById('serviceCost').value = service.cost || 0;
+      document.getElementById('serviceWorkshop').value = service.workshop || '';
+      document.getElementById('serviceNotes').value = service.notes || '';
+    } else {
+      title.textContent = 'Add Service Record';
+      document.getElementById('serviceId').value = '';
+      document.getElementById('serviceDate').value = new Date().toISOString().split('T')[0];
+
+      // Pre-fill odometer with highest odometer between logs and services
+      let highestOdo = 0;
+      if (logs.length > 0) highestOdo = Math.max(...logs.map(l => l.odometer));
+      if (services.length > 0) highestOdo = Math.max(highestOdo, ...services.map(s => s.odometer));
+      if (highestOdo === 0) {
+        const vehicles = StorageManager.getVehicles();
+        const vehicle = vehicles.find(v => v.id === activeVehicleId);
+        if (vehicle) highestOdo = vehicle.initialOdometer;
+      }
+      document.getElementById('serviceOdometer').value = highestOdo;
+    }
+
+    modal.classList.remove('hidden');
+  }
+
+  closeServiceModal() {
+    const modal = document.getElementById('modalService');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  bindServiceModalEvents() {
+    const btnTab = document.getElementById('btnAddServiceTab');
+    const btnEmpty = document.getElementById('btnEmptyAddService');
+    const btnClose = document.getElementById('btnCloseServiceModal');
+    const btnCancel = document.getElementById('btnCancelServiceModal');
+    const form = document.getElementById('formService');
+
+    btnTab?.addEventListener('click', () => this.openServiceModal());
+    btnEmpty?.addEventListener('click', () => this.openServiceModal());
+    btnClose?.addEventListener('click', () => this.closeServiceModal());
+    btnCancel?.addEventListener('click', () => this.closeServiceModal());
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const activeVehicleId = StorageManager.getActiveVehicleId();
+      if (!activeVehicleId) {
+        this.showToast('Please add or select a vehicle first', 'error');
+        return;
+      }
+
+      const id = document.getElementById('serviceId').value;
+      const serviceData = {
+        vehicleId: activeVehicleId,
+        date: document.getElementById('serviceDate').value,
+        odometer: parseInt(document.getElementById('serviceOdometer').value, 10),
+        type: document.getElementById('serviceType').value,
+        title: document.getElementById('serviceTitle').value,
+        partsReplaced: document.getElementById('serviceParts').value,
+        cost: parseFloat(document.getElementById('serviceCost').value) || 0,
+        workshop: document.getElementById('serviceWorkshop').value,
+        notes: document.getElementById('serviceNotes').value
+      };
+      if (id) serviceData.id = id;
+
+      StorageManager.saveService(serviceData);
+      this.closeServiceModal();
+      this.renderServicesTable();
+      this.showToast(id ? 'Service record updated' : 'New service record added!');
+    });
+  }
+
   prefillPlanner() {
     const consInput = document.getElementById('tripConsumption');
     if (!consInput) return;
@@ -539,6 +737,10 @@ export class UIManager {
       totalSpend = logs.reduce((sum, l) => sum + l.totalCost, 0);
     }
 
+    const services = StorageManager.getServices(activeVehicleId);
+    const totalServiceSpend = services.reduce((sum, s) => sum + (Number(s.cost) || 0), 0);
+    const totalOwnershipSpend = totalSpend + totalServiceSpend;
+
     const avgL100km = totalDist > 0 ? ((totalFuel / totalDist) * 100).toFixed(2) : '0.00';
 
     const elDist = document.getElementById('kpiTotalDist');
@@ -548,7 +750,7 @@ export class UIManager {
 
     if (elDist) elDist.textContent = `${totalDist.toLocaleString()} ${this.settings.distanceUnit}`;
     if (elFuel) elFuel.textContent = `${totalFuel.toFixed(1)} ${this.settings.volumeUnit}`;
-    if (elSpend) elSpend.textContent = formatCurrency(totalSpend, this.settings.currency);
+    if (elSpend) elSpend.textContent = formatCurrency(totalOwnershipSpend, this.settings.currency);
     if (elAvg) elAvg.textContent = `${avgL100km} L/100km`;
 
     // Render Chart.js visualizers

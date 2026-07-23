@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index-BSn7jReE.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BV2Bf5p2.css">
+  <script type="module" crossorigin src="/assets/index-9ZegM4qT.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-C2ZttvTF.css">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -58,6 +58,10 @@
       <button class="nav-tab" data-tab="logs">
         <i data-lucide="clipboard-list"></i>
         <span>Refuel Log</span>
+      </button>
+      <button class="nav-tab" data-tab="service">
+        <i data-lucide="wrench"></i>
+        <span>Service Log</span>
       </button>
       <button class="nav-tab" data-tab="planner">
         <i data-lucide="navigation"></i>
@@ -237,6 +241,98 @@
             <i data-lucide="fuel" class="empty-icon"></i>
             <p>No refuel logs found for this vehicle.</p>
             <button id="btnEmptyAddLog" class="btn btn-primary small">Add First Log</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: SERVICE & REPAIR TRACKER -->
+      <section id="tab-service" class="tab-view">
+        <div class="view-header flex-between">
+          <div>
+            <h2>Vehicle Service & Maintenance Tracker</h2>
+            <p>Track repairs, oil changes, replaced parts, workshop logs, and maintenance expenses.</p>
+          </div>
+          <button id="btnAddServiceTab" class="btn btn-primary">
+            <i data-lucide="wrench"></i> Add Service Record
+          </button>
+        </div>
+
+        <!-- Service KPI Cards -->
+        <div class="kpi-grid">
+          <div class="glass-card kpi-card">
+            <div class="kpi-header">
+              <span>Total Service Spend</span>
+              <i data-lucide="wallet"></i>
+            </div>
+            <div id="kpiTotalServiceSpend" class="kpi-value">$0.00</div>
+          </div>
+
+          <div class="glass-card kpi-card">
+            <div class="kpi-header">
+              <span>Total Service Records</span>
+              <i data-lucide="clipboard-check"></i>
+            </div>
+            <div id="kpiTotalServiceCount" class="kpi-value">0</div>
+          </div>
+
+          <div class="glass-card kpi-card">
+            <div class="kpi-header">
+              <span>Last Service Mileage</span>
+              <i data-lucide="gauge"></i>
+            </div>
+            <div id="kpiLastServiceOdo" class="kpi-value">-</div>
+          </div>
+
+          <div class="glass-card kpi-card">
+            <div class="kpi-header">
+              <span>Avg Service Cost</span>
+              <i data-lucide="calculator"></i>
+            </div>
+            <div id="kpiAvgServiceCost" class="kpi-value">$0.00</div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="glass-card filter-bar">
+          <div class="search-input-wrapper">
+            <i data-lucide="search"></i>
+            <input type="text" id="serviceSearchInput" placeholder="Search by service title, parts replaced, workshop, or notes...">
+          </div>
+
+          <div class="filter-actions">
+            <select id="serviceFilterType" class="styled-select small">
+              <option value="all">All Service Types</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Repair">Repair</option>
+              <option value="Inspection">Inspection</option>
+              <option value="Upgrade">Upgrade</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Service Table -->
+        <div class="glass-card table-container">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Odometer</th>
+                <th>Category</th>
+                <th>Service Title</th>
+                <th>Parts Replaced / Repaired</th>
+                <th>Cost</th>
+                <th>Workshop / Provider</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="serviceTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+          <div id="serviceEmptyState" class="empty-state hidden">
+            <i data-lucide="wrench" class="empty-icon"></i>
+            <p>No service records found for this vehicle.</p>
+            <button id="btnEmptyAddService" class="btn btn-primary small">Add First Service</button>
           </div>
         </div>
       </section>
@@ -566,6 +662,74 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" id="btnCancelRefuelModal">Cancel</button>
             <button type="submit" class="btn btn-primary">Save Refuel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT SERVICE RECORD -->
+    <div id="modalService" class="modal-overlay hidden">
+      <div class="glass-card modal-container">
+        <div class="modal-header">
+          <h3 id="modalServiceTitle">Add Service Record</h3>
+          <button type="button" class="btn-icon" id="btnCloseServiceModal" aria-label="Close modal">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <form id="formService">
+          <input type="hidden" id="serviceId" value="">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="serviceDate">Service Date</label>
+              <input type="date" id="serviceDate" required>
+            </div>
+            <div class="form-group">
+              <label for="serviceOdometer">Odometer Reading (<span class="unit-dist-label">km</span>)</label>
+              <input type="number" id="serviceOdometer" min="0" step="1" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="serviceType">Service Category / Type</label>
+              <select id="serviceType" class="styled-select full-width" required>
+                <option value="Maintenance">Maintenance (Oil, Filters, Fluids)</option>
+                <option value="Repair">Repair (Brakes, Engine, Suspension)</option>
+                <option value="Inspection">Inspection (MOT, Safety Check)</option>
+                <option value="Upgrade">Upgrade (Tuning, Audio, Custom)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="serviceCost">Total Cost (<span class="currency-label">$</span>)</label>
+              <input type="number" id="serviceCost" min="0" step="0.01" placeholder="e.g. 150.00" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="serviceTitle">Service Title / Brief Summary</label>
+            <input type="text" id="serviceTitle" placeholder="e.g. Full Synthetic Oil & Filter Service" required>
+          </div>
+
+          <div class="form-group">
+            <label for="serviceParts">Parts Replaced / Repaired</label>
+            <input type="text" id="serviceParts" placeholder="e.g. 5W-30 Synthetic Oil, Oil Filter, Cabin Filter">
+          </div>
+
+          <div class="form-group">
+            <label for="serviceWorkshop">Workshop / Service Provider</label>
+            <input type="text" id="serviceWorkshop" placeholder="e.g. VW Main Dealer, Local Garage, DIY">
+          </div>
+
+          <div class="form-group">
+            <label for="serviceNotes">Additional Notes / Reminders (Optional)</label>
+            <input type="text" id="serviceNotes" placeholder="e.g. Next service recommended in 15,000 km">
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelServiceModal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Service Record</button>
           </div>
         </form>
       </div>

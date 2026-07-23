@@ -682,6 +682,16 @@ body {
   text-transform: uppercase;
 }
 
+.badge-tag.badge-primary {
+  background: #222;
+  color: #fff;
+}
+
+.badge-tag.badge-danger {
+  background: transparent;
+  border: 1px dashed #222;
+}
+
 .empty-state {
   text-align: center;
   padding: 48px 24px;

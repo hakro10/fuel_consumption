@@ -91,6 +91,14 @@
 - **Issue**: Fuel efficiency (`calculatedL100km`) achieved during interval $i$ (between Refuel $i-1$ and Refuel $i$) was previously credited to Refuel $i$'s station. However, physically, the fuel consumed during interval $i$ was purchased at Refuel $i-1$'s station!
 - **Solution**: Updated `renderStationEfficiencyChart` in `src/js/charts.js` and `renderAnalytics()` in `src/js/ui.js` so that interval $i$'s fuel efficiency is credited to `logs[i - 1].station` (the station that provided the fuel actually burned during that distance interval).
 
+### 14. Vehicle Service & Maintenance Tracker Feature
+- **Feature Request**: Add a dedicated Service & Repair section so users can log repairs, maintenance, parts replaced/repaired, workshop info, and costs per vehicle.
+- **Solution**: 
+  1. Added `STORAGE_KEYS.SERVICES = 'fuel_counter_services'` and Service CRUD methods (`getServices`, `saveService`, `deleteService`) in `src/js/storage.js`.
+  2. Added **Service Log** navigation tab, `#tab-service` view (KPI cards for Total Spend, Records Count, Last Mileage, Avg Cost, search bar, and filter dropdown), and `#modalService` modal form in `index.html`.
+  3. Implemented `renderServicesTable()`, `openServiceModal()`, and search/filter listeners in `src/js/ui.js`.
+  4. Updated `renderAnalytics()` to factor service costs into total vehicle ownership expenditure.
+
 ---
 
 ## 🌿 Git Branching Strategy
