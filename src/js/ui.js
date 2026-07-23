@@ -9,7 +9,8 @@ import {
 import { 
   renderEfficiencyTrendChart, 
   renderExpenseChart, 
-  renderStationChart 
+  renderStationChart,
+  renderStationEfficiencyChart
 } from './charts.js';
 
 export class UIManager {
@@ -554,6 +555,70 @@ export class UIManager {
     renderEfficiencyTrendChart('efficiencyTrendChart', logs, currentVehicle.targetConsumption || 5.5);
     renderExpenseChart('monthlyExpenseChart', logs, this.settings.currency);
     renderStationChart('stationShareChart', logs);
+    renderStationEfficiencyChart('stationEfficiencyChart', logs);
+
+    // Render Station Efficiency Breakdown
+    const elBreakdown = document.getElementById('stationEfficiencyBreakdown');
+    if (elBreakdown) {
+      const stationStats = {};
+      logs.forEach(l => {
+        const name = l.station?.trim() || 'Other / Unknown';
+        if (!stationStats[name]) {
+          stationStats[name] = { totalConsumption: 0, count: 0, totalFuel: 0, totalCost: 0 };
+        }
+        stationStats[name].totalFuel += Number(l.fuelVolume || 0);
+        stationStats[name].totalCost += Number(l.totalCost || 0);
+        if (l.calculatedL100km && l.calculatedL100km > 0) {
+          stationStats[name].totalConsumption += Number(l.calculatedL100km);
+          stationStats[name].count += 1;
+        }
+      });
+
+      const stations = Object.keys(stationStats).map(st => {
+        const s = stationStats[st];
+        const avgCons = s.count > 0 ? (s.totalConsumption / s.count) : null;
+        return { name: st, avgCons, totalFuel: s.totalFuel, totalCost: s.totalCost, count: s.count };
+      }).sort((a, b) => {
+        if (a.avgCons === null) return 1;
+        if (b.avgCons === null) return -1;
+        return a.avgCons - b.avgCons;
+      });
+
+      if (stations.length === 0) {
+        elBreakdown.innerHTML = '<p style="font-size: 0.88rem; color: var(--text-muted);">No refuel station data available.</p>';
+      } else {
+        const mostEfficient = stations.find(s => s.avgCons !== null);
+        let html = '';
+
+        if (mostEfficient) {
+          html += `
+            <div class="info-banner" style="margin-bottom: 16px;">
+              <i data-lucide="award"></i>
+              <span><strong>Most Efficient Station:</strong> ${mostEfficient.name} (${mostEfficient.avgCons.toFixed(2)} L/100km average)</span>
+            </div>
+          `;
+        }
+
+        html += stations.map(s => `
+          <div class="cost-item">
+            <div>
+              <strong>${s.name}</strong>
+              <span style="font-size: 0.78rem; display: block; color: var(--text-muted);">
+                ${s.totalFuel.toFixed(1)} ${this.settings.volumeUnit} filled (${s.count} log${s.count !== 1 ? 's' : ''})
+              </span>
+            </div>
+            <div style="text-align: right;">
+              <span class="${mostEfficient && s.name === mostEfficient.name ? 'highlight-cost' : ''}">
+                ${s.avgCons !== null ? `${s.avgCons.toFixed(2)} L/100km` : 'N/A (Needs 2 fill-ups)'}
+              </span>
+            </div>
+          </div>
+        `).join('');
+
+        elBreakdown.innerHTML = html;
+        if (window.lucide) window.lucide.createIcons();
+      }
+    }
   }
 
   // Vehicles Garage

@@ -189,7 +189,86 @@ export function renderStationChart(canvasId, logs) {
           labels: { color: '#94a3b8', font: { family: 'Outfit, sans-serif' } }
         }
       },
-      cutout: '70%'
     }
   });
 }
+
+let stationEfficiencyChartInstance = null;
+
+export function renderStationEfficiencyChart(canvasId, logs) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+
+  if (stationEfficiencyChartInstance) {
+    stationEfficiencyChartInstance.destroy();
+  }
+
+  // Aggregate consumption per station
+  const stationStats = {};
+  logs.forEach(l => {
+    const station = l.station?.trim() || 'Other / Unknown';
+    if (!stationStats[station]) {
+      stationStats[station] = { totalConsumption: 0, count: 0 };
+    }
+    if (l.calculatedL100km && l.calculatedL100km > 0) {
+      stationStats[station].totalConsumption += Number(l.calculatedL100km);
+      stationStats[station].count += 1;
+    }
+  });
+
+  const labels = [];
+  const dataPoints = [];
+
+  Object.keys(stationStats).forEach(st => {
+    if (stationStats[st].count > 0) {
+      labels.push(st);
+      const avg = Number((stationStats[st].totalConsumption / stationStats[st].count).toFixed(2));
+      dataPoints.push(avg);
+    }
+  });
+
+  stationEfficiencyChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Avg Consumption (L/100km)',
+          data: dataPoints,
+          backgroundColor: '#222222',
+          hoverBackgroundColor: '#333333',
+          borderRadius: 0,
+          borderSkipped: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color: '#222222', font: { family: 'Space Mono, monospace' } }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` Avg Consumption: ${ctx.parsed.x} L/100km`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0, 0, 0, 0.1)' },
+          ticks: { color: '#222222' },
+          title: { display: true, text: 'L/100km (Lower is better)', color: '#222222' }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#222222' }
+        }
+      }
+    }
+  });
+}
+

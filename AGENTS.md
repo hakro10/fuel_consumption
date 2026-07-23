@@ -64,6 +64,13 @@
 - **Issue**: App layout needed responsive styling for mobile screen sizes (`< 600px`).
 - **Solution**: Added CSS media queries in `src/style.css` to stack header elements, form rows, KPI cards, metrics grid, and adjust container padding for mobile viewports.
 
+### 9. Petrol Station Fuel Efficiency Analytics
+- **Feature Request**: Compare average fuel consumption (`L/100km`) across different refuel stations (e.g. Shell, BP, Circle K) to determine which station provides the most fuel-efficient petrol/diesel.
+- **Solution**: 
+  1. Added a horizontal bar chart `renderStationEfficiencyChart` in `src/js/charts.js`.
+  2. Added station comparison card `.chart-card.large` and breakdown container `#stationEfficiencyBreakdown` to `index.html`.
+  3. Updated `renderAnalytics()` in `src/js/ui.js` to compute station-by-station consumption averages, display total fill-up counts, highlight the most efficient station badge, and render the chart.
+
 ---
 
 ## 🌿 Git Branching Strategy
