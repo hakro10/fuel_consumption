@@ -993,3 +993,30 @@ body {
     font-size: 2.5rem;
   }
 }
+
+/* Branch Version Badge */
+.branch-badge {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: #222222;
+  color: #ffffff;
+  border: 2px dashed #ffffff;
+  padding: 6px 14px;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 9999;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.branch-badge i {
+  width: 14px;
+  height: 14px;
+}

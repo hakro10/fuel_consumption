@@ -71,6 +71,10 @@
   2. Added station comparison card `.chart-card.large` and breakdown container `#stationEfficiencyBreakdown` to `index.html`.
   3. Updated `renderAnalytics()` in `src/js/ui.js` to compute station-by-station consumption averages, display total fill-up counts, highlight the most efficient station badge, and render the chart.
 
+### 10. Testing Branch Visual Indicator
+- **Feature Request**: Distinguish testing builds from production by adding a visual badge.
+- **Solution**: Added fixed position `.branch-badge` (`TESTING BRANCH`) in bottom-right corner of `index.html` and `src/style.css`.
+
 ---
 
 ## 🌿 Git Branching Strategy
