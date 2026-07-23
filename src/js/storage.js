@@ -81,7 +81,7 @@ export class StorageManager {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_VEHICLE_ID, id);
   }
 
-  static getLogs(vehicleId = null) {
+  static getLogs(vehicleId = undefined) {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.LOGS);
       let logs = data ? JSON.parse(data) : [];
@@ -89,8 +89,9 @@ export class StorageManager {
       // Sanitize corrupt logs with undefined IDs
       logs = logs.filter(l => l.id && String(l.id) !== 'undefined');
 
-      if (vehicleId) {
-        return logs.filter(l => l.vehicleId === vehicleId).sort((a, b) => new Date(b.date) - new Date(a.date));
+      if (vehicleId !== undefined) {
+        if (!vehicleId) return [];
+        return logs.filter(l => String(l.vehicleId) === String(vehicleId)).sort((a, b) => new Date(b.date) - new Date(a.date));
       }
       return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
     } catch {
@@ -200,6 +201,15 @@ export class StorageManager {
     let vehicles = this.getVehicles().filter(v => String(v.id) !== String(id));
     this.saveVehicles(vehicles);
     
+    // Purge associated refuel logs and service records for this deleted vehicle
+    const allLogs = this.getLogs();
+    const updatedLogs = allLogs.filter(l => String(l.vehicleId) !== String(id));
+    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(updatedLogs));
+
+    const allServices = this.getServices();
+    const updatedServices = allServices.filter(s => String(s.vehicleId) !== String(id));
+    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(updatedServices));
+
     if (vehicles.length > 0) {
       const active = localStorage.getItem(STORAGE_KEYS.ACTIVE_VEHICLE_ID);
       if (active === String(id) || !vehicles.some(v => String(v.id) === active)) {
@@ -210,12 +220,14 @@ export class StorageManager {
     }
   }
 
-  static getServices(vehicleId = null) {
+  static getServices(vehicleId = undefined) {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.SERVICES);
       let services = data ? JSON.parse(data) : [];
       services = services.filter(s => s && s.id !== undefined && s.id !== 'undefined');
-      if (vehicleId) {
+
+      if (vehicleId !== undefined) {
+        if (!vehicleId) return [];
         return services.filter(s => String(s.vehicleId) === String(vehicleId));
       }
       return services;

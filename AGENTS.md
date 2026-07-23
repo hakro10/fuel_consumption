@@ -125,6 +125,14 @@
 - **Issue**: Users could not delete the last remaining vehicle in the garage because the Delete button was conditionally hidden (`vehicles.length > 1`).
 - **Solution**: Removed the `vehicles.length > 1` constraint in `renderVehiclesGarage()` in `src/js/ui.js` so the Delete button is always available. Deleting the last vehicle cleanly transitions the app to the empty garage state and resets all views.
 
+### 19. Vehicle Cascade Deletion & Null Active Vehicle Query Fix
+- **Issue**: 
+  1. Deleting a vehicle profile left orphan refuel logs and service records in `localStorage`.
+  2. Querying `getLogs(activeVehicleId)` and `getServices(activeVehicleId)` when `activeVehicleId` was `null` (empty garage) fell back to returning all logs across all vehicles.
+- **Solution**:
+  1. Updated `deleteVehicle(id)` in `src/js/storage.js` to cascade delete all associated refuel logs and service records matching `vehicleId === id`.
+  2. Updated `getLogs(vehicleId)` and `getServices(vehicleId)` in `src/js/storage.js` so that passing a falsy `vehicleId` (when no vehicle exists) safely returns an empty array `[]`.
+
 ---
 
 ## 🌿 Git Branching Strategy
