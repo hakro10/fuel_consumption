@@ -114,6 +114,13 @@
   2. Implemented `populateAnalyticsFilterDropdowns`, `getFilteredAnalyticsData`, and `bindAnalyticsFilterEvents` in `src/js/ui.js`.
   3. Updated `renderAnalytics()` to compute KPIs and re-render all 5 Chart.js visualizers using the filtered dataset for the selected timeframe.
 
+### 17. Clean Fresh App State (Removal of Mock/Sample Data)
+- **Feature Request**: Remove all pre-seeded sample/mock vehicles, refuel logs, and service records so new users start with a clean, fresh app state.
+- **Solution**:
+  1. Set `INITIAL_VEHICLES = []`, `SAMPLE_LOGS = []`, and `SAMPLE_SERVICES = []` in `src/js/storage.js`.
+  2. Updated `getVehicles()`, `getLogs()`, `getServices()`, and `resetToDefault()` to return empty state arrays (`[]`) without seeding mock data.
+  3. Added empty state fallback card in `renderVehiclesGarage()` and vehicle check prompts in `openRefuelModal()` and `openServiceModal()` in `src/js/ui.js`.
+
 ---
 
 ## 🌿 Git Branching Strategy

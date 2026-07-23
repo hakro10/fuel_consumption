@@ -373,6 +373,13 @@ export class UIManager {
 
   // Refuel Modal
   openRefuelModal(logId = null) {
+    const activeVehicleId = StorageManager.getActiveVehicleId();
+    if (!activeVehicleId) {
+      this.showToast('Please add a vehicle profile first!', 'error');
+      this.openVehicleModal();
+      return;
+    }
+
     const modal = document.getElementById('modalRefuel');
     const title = document.getElementById('modalRefuelTitle');
     const form = document.getElementById('formRefuel');
@@ -401,7 +408,6 @@ export class UIManager {
     } else {
       title.textContent = 'Add Refuel Entry';
       // Pre-fill odometer with highest existing odometer or vehicle initial
-      const activeVehicleId = StorageManager.getActiveVehicleId();
       const logs = StorageManager.getLogs(activeVehicleId);
       if (logs.length > 0) {
         const lastOdo = Math.max(...logs.map(l => l.odometer));
@@ -563,6 +569,13 @@ export class UIManager {
 
   // Service Modal Handling
   openServiceModal(service = null) {
+    const activeVehicleId = StorageManager.getActiveVehicleId();
+    if (!activeVehicleId) {
+      this.showToast('Please add a vehicle profile first!', 'error');
+      this.openVehicleModal();
+      return;
+    }
+
     const modal = document.getElementById('modalService');
     const title = document.getElementById('modalServiceTitle');
     const form = document.getElementById('formService');
@@ -570,7 +583,6 @@ export class UIManager {
 
     form.reset();
 
-    const activeVehicleId = StorageManager.getActiveVehicleId();
     const services = StorageManager.getServices(activeVehicleId);
     const logs = StorageManager.getLogs(activeVehicleId);
 
@@ -1003,6 +1015,22 @@ export class UIManager {
 
     const vehicles = StorageManager.getVehicles();
     const activeId = StorageManager.getActiveVehicleId();
+
+    if (vehicles.length === 0) {
+      grid.innerHTML = `
+        <div class="glass-card empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center;">
+          <i data-lucide="car" class="empty-icon" style="width: 48px; height: 48px; margin-bottom: 12px; display: inline-block;"></i>
+          <h3 style="margin-bottom: 8px;">No Vehicles in Garage</h3>
+          <p style="color: var(--text-muted); margin-bottom: 16px;">Add your first vehicle profile to start tracking fuel logs and service records.</p>
+          <button id="btnEmptyAddVehicle" class="btn btn-primary">
+            <i data-lucide="plus-circle"></i> Add Your First Vehicle
+          </button>
+        </div>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+      document.getElementById('btnEmptyAddVehicle')?.addEventListener('click', () => this.openVehicleModal());
+      return;
+    }
 
     grid.innerHTML = vehicles.map(v => {
       const isActive = v.id === activeId;

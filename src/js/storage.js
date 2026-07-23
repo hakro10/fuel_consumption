@@ -18,143 +18,9 @@ const DEFAULT_SETTINGS = {
   theme: 'dark'
 };
 
-const INITIAL_VEHICLES = [
-  {
-    id: 'v-1',
-    name: 'Passat B8 2.0 TDI',
-    make: 'Volkswagen',
-    model: 'Passat',
-    year: 2019,
-    fuelType: 'Diesel',
-    tankCapacity: 66,
-    targetConsumption: 5.5,
-    initialOdometer: 142000,
-    serviceInterval: 10000
-  },
-  {
-    id: 'v-2',
-    name: 'Civic 1.5 Turbo',
-    make: 'Honda',
-    model: 'Civic',
-    year: 2021,
-    fuelType: 'Gasoline 95',
-    tankCapacity: 47,
-    targetConsumption: 6.8,
-    initialOdometer: 38500,
-    serviceInterval: 10000
-  }
-];
-
-const SAMPLE_LOGS = [
-  {
-    id: 'log-1',
-    vehicleId: 'v-1',
-    date: '2026-06-01',
-    odometer: 142000,
-    fuelVolume: 55.0,
-    pricePerUnit: 1.65,
-    totalCost: 90.75,
-    fuelType: 'Diesel',
-    isFullTank: true,
-    station: 'Shell Premium',
-    notes: 'Initial full tank refuel'
-  },
-  {
-    id: 'log-2',
-    vehicleId: 'v-1',
-    date: '2026-06-12',
-    odometer: 142850,
-    fuelVolume: 49.3,
-    pricePerUnit: 1.68,
-    totalCost: 82.82,
-    fuelType: 'Diesel',
-    isFullTank: true,
-    station: 'BP Express',
-    notes: 'Highway trip to Munich',
-    calculatedL100km: 5.80
-  },
-  {
-    id: 'log-3',
-    vehicleId: 'v-1',
-    date: '2026-06-25',
-    odometer: 143770,
-    fuelVolume: 51.6,
-    pricePerUnit: 1.64,
-    totalCost: 84.62,
-    fuelType: 'Diesel',
-    isFullTank: true,
-    station: 'Shell Premium',
-    notes: 'Mixed city & highway',
-    calculatedL100km: 5.61
-  },
-  {
-    id: 'log-4',
-    vehicleId: 'v-1',
-    date: '2026-07-08',
-    odometer: 144710,
-    fuelVolume: 50.8,
-    pricePerUnit: 1.62,
-    totalCost: 82.30,
-    fuelType: 'Diesel',
-    isFullTank: true,
-    station: 'Circle K',
-    notes: 'Commute and weekend trip',
-    calculatedL100km: 5.40
-  },
-  {
-    id: 'log-5',
-    vehicleId: 'v-1',
-    date: '2026-07-20',
-    odometer: 145630,
-    fuelVolume: 52.4,
-    pricePerUnit: 1.67,
-    totalCost: 87.51,
-    fuelType: 'Diesel',
-    isFullTank: true,
-    station: 'Shell Premium',
-    notes: 'Full tank refuel before vacation',
-    calculatedL100km: 5.70
-  }
-];
-
-const SAMPLE_SERVICES = [
-  {
-    id: 'srv-1',
-    vehicleId: 'v-1',
-    date: '2026-05-15',
-    odometer: 140000,
-    type: 'Maintenance',
-    title: 'Full Synthetic Oil & Filter Change',
-    partsReplaced: 'Castrol Edge 5W-30 (5L), Mann Oil Filter, Air Filter',
-    cost: 135.00,
-    workshop: 'VW Authorized Dealer',
-    notes: 'Replaced cabin air filter as well.'
-  },
-  {
-    id: 'srv-2',
-    vehicleId: 'v-1',
-    date: '2026-06-20',
-    odometer: 143200,
-    type: 'Repair',
-    title: 'Front Brake Pads & Rotors Replacement',
-    partsReplaced: 'Brembo Front Brake Discs & Ceramic Pads',
-    cost: 280.00,
-    workshop: 'Bosch Auto Service',
-    notes: 'Brake fluid flushed and bled.'
-  },
-  {
-    id: 'srv-3',
-    vehicleId: 'v-2',
-    date: '2026-04-10',
-    odometer: 35000,
-    type: 'Maintenance',
-    title: 'Engine Oil & Inspection Service',
-    partsReplaced: 'Honda 0W-20 Full Synthetic, OEM Filter',
-    cost: 95.00,
-    workshop: 'Honda Main Dealer',
-    notes: 'Multi-point safety inspection passed.'
-  }
-];
+const INITIAL_VEHICLES = [];
+const SAMPLE_LOGS = [];
+const SAMPLE_SERVICES = [];
 
 export class StorageManager {
   static getSettings() {
@@ -174,8 +40,7 @@ export class StorageManager {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.VEHICLES);
       if (!data) {
-        this.saveVehicles(INITIAL_VEHICLES);
-        return INITIAL_VEHICLES;
+        return [];
       }
       const vehicles = JSON.parse(data);
       let modified = false;
@@ -188,7 +53,7 @@ export class StorageManager {
       if (modified) this.saveVehicles(vehicles);
       return vehicles;
     } catch {
-      return INITIAL_VEHICLES;
+      return [];
     }
   }
 
@@ -219,7 +84,7 @@ export class StorageManager {
   static getLogs(vehicleId = null) {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.LOGS);
-      let logs = data ? JSON.parse(data) : (this.seedSampleLogs(), SAMPLE_LOGS);
+      let logs = data ? JSON.parse(data) : [];
       
       // Sanitize corrupt logs with undefined IDs
       logs = logs.filter(l => l.id && String(l.id) !== 'undefined');
@@ -229,12 +94,12 @@ export class StorageManager {
       }
       return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
     } catch {
-      return SAMPLE_LOGS;
+      return [];
     }
   }
 
   static seedSampleLogs() {
-    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(SAMPLE_LOGS));
+    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify([]));
   }
 
   static saveLog(logData) {
@@ -348,20 +213,20 @@ export class StorageManager {
   static getServices(vehicleId = null) {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.SERVICES);
-      let services = data ? JSON.parse(data) : (this.seedSampleServices(), SAMPLE_SERVICES);
+      let services = data ? JSON.parse(data) : [];
       services = services.filter(s => s && s.id !== undefined && s.id !== 'undefined');
       if (vehicleId) {
         return services.filter(s => String(s.vehicleId) === String(vehicleId));
       }
       return services;
     } catch {
-      return this.seedSampleServices();
+      return [];
     }
   }
 
   static seedSampleServices() {
-    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(SAMPLE_SERVICES));
-    return SAMPLE_SERVICES;
+    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify([]));
+    return [];
   }
 
   static saveService(serviceData) {
@@ -436,7 +301,7 @@ export class StorageManager {
     localStorage.removeItem(STORAGE_KEYS.VEHICLES);
     localStorage.removeItem(STORAGE_KEYS.SETTINGS);
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_VEHICLE_ID);
-    this.getVehicles();
+    this.saveVehicles([]);
     this.seedSampleLogs();
     this.seedSampleServices();
   }
