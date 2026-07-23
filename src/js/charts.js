@@ -203,14 +203,20 @@ export function renderStationEfficiencyChart(canvasId, logs) {
     stationEfficiencyChartInstance.destroy();
   }
 
-  // Aggregate consumption per station
+  // Sort logs by odometer ascending to evaluate station intervals correctly
+  const sortedLogs = [...logs].sort((a, b) => a.odometer - b.odometer);
+
+  // Aggregate consumption per station (attributing consumption to the PREVIOUS refuel's station)
   const stationStats = {};
-  logs.forEach(l => {
-    const station = l.station?.trim() || 'Other / Unknown';
-    if (!stationStats[station]) {
-      stationStats[station] = { totalConsumption: 0, count: 0 };
-    }
+  sortedLogs.forEach((l, idx) => {
     if (l.calculatedL100km && l.calculatedL100km > 0) {
+      // The fuel burned during this interval was filled at the PREVIOUS station
+      const prevLog = idx > 0 ? sortedLogs[idx - 1] : null;
+      const station = (prevLog && prevLog.station?.trim()) ? prevLog.station.trim() : (l.station?.trim() || 'Other / Unknown');
+
+      if (!stationStats[station]) {
+        stationStats[station] = { totalConsumption: 0, count: 0 };
+      }
       stationStats[station].totalConsumption += Number(l.calculatedL100km);
       stationStats[station].count += 1;
     }

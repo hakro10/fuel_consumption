@@ -87,6 +87,10 @@
 - **Issue**: In light mode, `.branch-badge` was using `position: fixed`, pinning it to the browser viewport window while scrolling. In dark mode, `.app-container`'s CSS `filter: invert(1)` created a containing block, causing `position: fixed` to act as `position: absolute` attached to the receipt card.
 - **Solution**: Updated `.branch-badge` in `src/style.css` to `position: absolute; bottom: 16px; right: 16px;` so that it consistently attaches to the bottom-right of the receipt card and scrolls naturally with the receipt in BOTH light and dark mode.
 
+### 13. Station Efficiency Fuel Attribution Mechanics
+- **Issue**: Fuel efficiency (`calculatedL100km`) achieved during interval $i$ (between Refuel $i-1$ and Refuel $i$) was previously credited to Refuel $i$'s station. However, physically, the fuel consumed during interval $i$ was purchased at Refuel $i-1$'s station!
+- **Solution**: Updated `renderStationEfficiencyChart` in `src/js/charts.js` and `renderAnalytics()` in `src/js/ui.js` so that interval $i$'s fuel efficiency is credited to `logs[i - 1].station` (the station that provided the fuel actually burned during that distance interval).
+
 ---
 
 ## 🌿 Git Branching Strategy

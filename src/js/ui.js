@@ -561,16 +561,25 @@ export class UIManager {
     const elBreakdown = document.getElementById('stationEfficiencyBreakdown');
     if (elBreakdown) {
       const stationStats = {};
-      logs.forEach(l => {
-        const name = l.station?.trim() || 'Other / Unknown';
-        if (!stationStats[name]) {
-          stationStats[name] = { totalConsumption: 0, count: 0, totalFuel: 0, totalCost: 0 };
+      const sortedLogs = [...logs].sort((a, b) => a.odometer - b.odometer);
+
+      sortedLogs.forEach((l, idx) => {
+        const purchaseStation = l.station?.trim() || 'Other / Unknown';
+        if (!stationStats[purchaseStation]) {
+          stationStats[purchaseStation] = { totalConsumption: 0, count: 0, totalFuel: 0, totalCost: 0 };
         }
-        stationStats[name].totalFuel += Number(l.fuelVolume || 0);
-        stationStats[name].totalCost += Number(l.totalCost || 0);
+        stationStats[purchaseStation].totalFuel += Number(l.fuelVolume || 0);
+        stationStats[purchaseStation].totalCost += Number(l.totalCost || 0);
+
         if (l.calculatedL100km && l.calculatedL100km > 0) {
-          stationStats[name].totalConsumption += Number(l.calculatedL100km);
-          stationStats[name].count += 1;
+          const prevLog = idx > 0 ? sortedLogs[idx - 1] : null;
+          const fuelSourceStation = (prevLog && prevLog.station?.trim()) ? prevLog.station.trim() : purchaseStation;
+
+          if (!stationStats[fuelSourceStation]) {
+            stationStats[fuelSourceStation] = { totalConsumption: 0, count: 0, totalFuel: 0, totalCost: 0 };
+          }
+          stationStats[fuelSourceStation].totalConsumption += Number(l.calculatedL100km);
+          stationStats[fuelSourceStation].count += 1;
         }
       });
 
