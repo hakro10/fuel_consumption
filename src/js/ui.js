@@ -854,10 +854,19 @@ export class UIManager {
 
     if (logs.length > 0) {
       const sorted = [...logs].sort((a, b) => a.odometer - b.odometer);
-      const mode = document.getElementById('analyticsTimeframeSelect')?.value || 'all';
-      const startOdo = (mode === 'all' && currentVehicle) ? currentVehicle.initialOdometer : sorted[0].odometer;
-      totalDist = sorted[sorted.length - 1].odometer - startOdo;
-      if (totalDist < 0 || sorted.length === 1) totalDist = 0;
+      const rawSorted = [...rawLogs].sort((a, b) => a.odometer - b.odometer);
+
+      const firstFilteredLog = sorted[0];
+      const prevLogIndex = rawSorted.findIndex(l => l.id === firstFilteredLog.id) - 1;
+
+      let startOdo = (currentVehicle && currentVehicle.initialOdometer !== undefined) ? Number(currentVehicle.initialOdometer) : firstFilteredLog.odometer;
+      if (prevLogIndex >= 0) {
+        startOdo = rawSorted[prevLogIndex].odometer;
+      }
+
+      const endOdo = sorted[sorted.length - 1].odometer;
+      totalDist = endOdo - startOdo;
+      if (totalDist < 0) totalDist = 0;
       totalFuel = logs.reduce((sum, l) => sum + (Number(l.fuelVolume) || 0), 0);
       totalSpend = logs.reduce((sum, l) => sum + (Number(l.totalCost) || 0), 0);
     }

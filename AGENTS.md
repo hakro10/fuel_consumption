@@ -133,6 +133,11 @@
   1. Updated `deleteVehicle(id)` in `src/js/storage.js` to cascade delete all associated refuel logs and service records matching `vehicleId === id`.
   2. Updated `getLogs(vehicleId)` and `getServices(vehicleId)` in `src/js/storage.js` so that passing a falsy `vehicleId` (when no vehicle exists) safely returns an empty array `[]`.
 
+### 20. Single Refuel Log Analytics Distance Calculation Bug Fix
+- **Issue**: Adding a single refuel log (e.g. 200 km driven, 20 L filled) resulted in `TOTAL DISTANCE LOGGED` showing `0 km` in the Analytics Dashboard.
+- **Root Cause**: `renderAnalytics()` in `src/js/ui.js` contained an explicit condition `if (totalDist < 0 || sorted.length === 1) totalDist = 0;` which forced total distance to zero whenever only one log existed.
+- **Solution**: Removed the `sorted.length === 1` constraint and updated baseline odometer calculation so distance for single or filtered logs is computed correctly relative to `vehicle.initialOdometer` or the previous log.
+
 ---
 
 ## 🌿 Git Branching Strategy
