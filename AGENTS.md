@@ -75,6 +75,14 @@
 - **Feature Request**: Distinguish testing builds from production by adding a visual badge.
 - **Solution**: Added fixed position `.branch-badge` (`TESTING BRANCH`) in bottom-right corner of `index.html` and `src/style.css`.
 
+### 11. Mobile Header Overflow & Top Receipt Line Alignment
+- **Issue**: 
+  1. On mobile viewports (`< 768px`), `.header-actions` (vehicle dropdown + Add Refuel button) overflowed past the right edge of `.app-container`.
+  2. Subpixel hairline misalignment and top offset clipping on `.app-container::before` jagged teeth.
+- **Solution**:
+  1. Added `@media (max-width: 768px)` rules forcing `.header-actions` to `flex-wrap: wrap; width: 100%;` and `.vehicle-selector-wrapper` to `flex: 1 1 100%;`, keeping all controls neatly inside the receipt card.
+  2. Fixed background-size on `.app-container::before` & `::after` (`20px 10px`) and normalized top padding (`35px 30px`) and body margins for crisp alignment.
+
 ---
 
 ## 🌿 Git Branching Strategy
