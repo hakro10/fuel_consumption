@@ -10,7 +10,8 @@ import {
   renderEfficiencyTrendChart, 
   renderExpenseChart, 
   renderStationChart,
-  renderStationEfficiencyChart
+  renderStationEfficiencyChart,
+  renderFuelPriceTrendChart
 } from './charts.js';
 
 export class UIManager {
@@ -536,6 +537,7 @@ export class UIManager {
     }
 
     if (window.lucide) window.lucide.createIcons();
+    this.renderServiceReminder();
 
     // Bind Edit/Delete buttons
     tbody.querySelectorAll('.btn-edit-service').forEach(btn => {
@@ -758,6 +760,8 @@ export class UIManager {
     renderExpenseChart('monthlyExpenseChart', logs, this.settings.currency);
     renderStationChart('stationShareChart', logs);
     renderStationEfficiencyChart('stationEfficiencyChart', logs);
+    renderFuelPriceTrendChart('priceTrendChart', logs, this.settings.currency, this.settings.volumeUnit);
+    this.renderServiceReminder();
 
     // Render Station Efficiency Breakdown
     const elBreakdown = document.getElementById('stationEfficiencyBreakdown');
@@ -829,6 +833,51 @@ export class UIManager {
         elBreakdown.innerHTML = html;
         if (window.lucide) window.lucide.createIcons();
       }
+    }
+  }
+
+  // Service Reminders
+  renderServiceReminder() {
+    const banner = document.getElementById('serviceReminderBanner');
+    const textEl = document.getElementById('serviceReminderText');
+    if (!banner || !textEl) return;
+
+    const activeVehicleId = StorageManager.getActiveVehicleId();
+    if (!activeVehicleId) {
+      banner.classList.add('hidden');
+      return;
+    }
+
+    const vehicles = StorageManager.getVehicles();
+    const vehicle = vehicles.find(v => v.id === activeVehicleId);
+    if (!vehicle) return;
+
+    const interval = Number(vehicle.serviceInterval || 10000);
+    const services = StorageManager.getServices(activeVehicleId);
+    const logs = StorageManager.getLogs(activeVehicleId);
+
+    let currentOdo = Number(vehicle.initialOdometer || 0);
+    if (logs.length > 0) currentOdo = Math.max(currentOdo, ...logs.map(l => Number(l.odometer || 0)));
+    if (services.length > 0) currentOdo = Math.max(currentOdo, ...services.map(s => Number(s.odometer || 0)));
+
+    const maintenanceServices = services
+      .filter(s => s.type === 'Maintenance')
+      .sort((a, b) => Number(b.odometer || 0) - Number(a.odometer || 0));
+
+    const lastServiceOdo = maintenanceServices.length > 0 ? Number(maintenanceServices[0].odometer) : Number(vehicle.initialOdometer || 0);
+    const distSinceLast = Math.max(0, currentOdo - lastServiceOdo);
+    const remainingKm = interval - distSinceLast;
+
+    banner.classList.remove('hidden');
+    if (remainingKm <= 0) {
+      banner.className = 'info-banner warning-banner';
+      textEl.innerHTML = `<strong>⚠️ SERVICE OVERDUE!</strong> Last service was ${distSinceLast.toLocaleString()} ${this.settings.distanceUnit} ago (Overdue by ${Math.abs(remainingKm).toLocaleString()} ${this.settings.distanceUnit}). Target interval: Every ${interval.toLocaleString()} ${this.settings.distanceUnit}.`;
+    } else if (remainingKm <= 1000) {
+      banner.className = 'info-banner alert-banner';
+      textEl.innerHTML = `<strong>⚡ SERVICE DUE SOON!</strong> Next oil change/service due in <strong>${remainingKm.toLocaleString()} ${this.settings.distanceUnit}</strong> (Target interval: ${interval.toLocaleString()} ${this.settings.distanceUnit}).`;
+    } else {
+      banner.className = 'info-banner';
+      textEl.innerHTML = `<strong>✓ Service Status OK:</strong> Next maintenance service in <strong>${remainingKm.toLocaleString()} ${this.settings.distanceUnit}</strong> (Target interval: every ${interval.toLocaleString()} ${this.settings.distanceUnit}).`;
     }
   }
 
@@ -929,9 +978,11 @@ export class UIManager {
         document.getElementById('vehTank').value = v.tankCapacity;
         document.getElementById('vehTarget').value = v.targetConsumption;
         document.getElementById('vehOdometer').value = v.initialOdometer;
+        document.getElementById('vehServiceInterval').value = v.serviceInterval || 10000;
       }
     } else {
       title.textContent = 'Add New Vehicle';
+      document.getElementById('vehServiceInterval').value = 10000;
     }
 
     modal.classList.remove('hidden');
@@ -957,7 +1008,8 @@ export class UIManager {
         fuelType: document.getElementById('vehFuelType').value,
         tankCapacity: parseFloat(document.getElementById('vehTank').value),
         targetConsumption: parseFloat(document.getElementById('vehTarget').value),
-        initialOdometer: parseInt(document.getElementById('vehOdometer').value, 10)
+        initialOdometer: parseInt(document.getElementById('vehOdometer').value, 10),
+        serviceInterval: parseInt(document.getElementById('vehServiceInterval').value, 10) || 10000
       };
       if (id) vehicleData.id = id;
 
@@ -974,21 +1026,39 @@ export class UIManager {
     const curSelect = document.getElementById('setCurrency');
     const distSelect = document.getElementById('setDistanceUnit');
     const volSelect = document.getElementById('setVolumeUnit');
+    const consSelect = document.getElementById('setConsumptionUnit');
 
     if (curSelect) curSelect.value = this.settings.currency;
     if (distSelect) distSelect.value = this.settings.distanceUnit;
     if (volSelect) volSelect.value = this.settings.volumeUnit;
+    if (consSelect) consSelect.value = this.settings.consumptionUnit || 'l_100km';
 
     document.getElementById('btnSaveSettings')?.addEventListener('click', () => {
       this.settings.currency = curSelect.value;
       this.settings.distanceUnit = distSelect.value;
       this.settings.volumeUnit = volSelect.value;
+      if (consSelect) this.settings.consumptionUnit = consSelect.value;
       StorageManager.saveSettings(this.settings);
       this.updateUnitLabels();
       this.renderCalculator();
       this.renderLogsTable();
+      this.renderServicesTable();
       this.renderPlanner();
       this.showToast('Settings saved successfully!');
+    });
+
+    // CSV Export
+    document.getElementById('btnExportCSV')?.addEventListener('click', () => {
+      const activeVehicleId = StorageManager.getActiveVehicleId();
+      const csvStr = StorageManager.exportCSV(activeVehicleId);
+      const blob = new Blob([csvStr], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fuel_logs_${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      this.showToast('Refuel logs exported to CSV');
     });
 
     // JSON Export

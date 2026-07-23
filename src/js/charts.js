@@ -194,6 +194,7 @@ export function renderStationChart(canvasId, logs) {
 }
 
 let stationEfficiencyChartInstance = null;
+let priceTrendChartInstance = null;
 
 export function renderStationEfficiencyChart(canvasId, logs) {
   const ctx = document.getElementById(canvasId);
@@ -272,6 +273,72 @@ export function renderStationEfficiencyChart(canvasId, logs) {
         y: {
           grid: { display: false },
           ticks: { color: '#222222' }
+        }
+      }
+    }
+  });
+}
+
+export function renderFuelPriceTrendChart(canvasId, logs, currencySymbol = '$', volumeUnit = 'L') {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+
+  if (priceTrendChartInstance) {
+    priceTrendChartInstance.destroy();
+  }
+
+  // Sort logs by date ascending
+  const sortedLogs = [...logs]
+    .filter(l => l.pricePerUnit && l.date)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const labels = sortedLogs.map(l => {
+    const d = new Date(l.date);
+    return `${d.getMonth() + 1}/${d.getDate()}`;
+  });
+
+  const dataPoints = sortedLogs.map(l => Number(l.pricePerUnit));
+
+  priceTrendChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: `Fuel Price (${currencySymbol}/${volumeUnit})`,
+          data: dataPoints,
+          borderColor: '#222222',
+          backgroundColor: 'rgba(0, 0, 0, 0.05)',
+          fill: true,
+          tension: 0.2,
+          pointBackgroundColor: '#222222',
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#222222', font: { family: 'Space Mono, monospace' } }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` Price: ${currencySymbol}${ctx.parsed.y.toFixed(3)} / ${volumeUnit}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0, 0, 0, 0.1)' },
+          ticks: { color: '#222222' }
+        },
+        y: {
+          grid: { color: 'rgba(0, 0, 0, 0.1)' },
+          ticks: { color: '#222222' },
+          title: { display: true, text: `Price (${currencySymbol}/${volumeUnit})`, color: '#222222' }
         }
       }
     }

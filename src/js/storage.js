@@ -28,7 +28,8 @@ const INITIAL_VEHICLES = [
     fuelType: 'Diesel',
     tankCapacity: 66,
     targetConsumption: 5.5,
-    initialOdometer: 142000
+    initialOdometer: 142000,
+    serviceInterval: 10000
   },
   {
     id: 'v-2',
@@ -39,7 +40,8 @@ const INITIAL_VEHICLES = [
     fuelType: 'Gasoline 95',
     tankCapacity: 47,
     targetConsumption: 6.8,
-    initialOdometer: 38500
+    initialOdometer: 38500,
+    serviceInterval: 10000
   }
 ];
 
@@ -175,7 +177,16 @@ export class StorageManager {
         this.saveVehicles(INITIAL_VEHICLES);
         return INITIAL_VEHICLES;
       }
-      return JSON.parse(data);
+      const vehicles = JSON.parse(data);
+      let modified = false;
+      vehicles.forEach(v => {
+        if (!v.serviceInterval) {
+          v.serviceInterval = 10000;
+          modified = true;
+        }
+      });
+      if (modified) this.saveVehicles(vehicles);
+      return vehicles;
     } catch {
       return INITIAL_VEHICLES;
     }
@@ -261,11 +272,49 @@ export class StorageManager {
     }
 
     localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(logs));
+    this.recalculateVehicleLogs(logData.vehicleId);
+  }
+
+  static recalculateVehicleLogs(vehicleId) {
+    const logs = this.getLogs();
+    const vehicleLogs = logs
+      .filter(l => l.vehicleId === vehicleId)
+      .sort((a, b) => a.odometer - b.odometer);
+
+    const vehicles = this.getVehicles();
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    let startOdo = vehicle ? Number(vehicle.initialOdometer || 0) : 0;
+    let accumulatedVolume = 0;
+
+    for (let i = 0; i < vehicleLogs.length; i++) {
+      const curr = vehicleLogs[i];
+      accumulatedVolume += Number(curr.fuelVolume || 0);
+
+      if (curr.isFullTank) {
+        const distDelta = curr.odometer - startOdo;
+        if (distDelta > 0 && accumulatedVolume > 0) {
+          curr.calculatedL100km = Number(((accumulatedVolume / distDelta) * 100).toFixed(2));
+        } else {
+          delete curr.calculatedL100km;
+        }
+        accumulatedVolume = 0;
+        startOdo = curr.odometer;
+      } else {
+        delete curr.calculatedL100km;
+      }
+    }
+
+    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(logs));
   }
 
   static deleteLog(id) {
-    const logs = this.getLogs().filter(l => l.id !== id);
-    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(logs));
+    const logs = this.getLogs();
+    const targetLog = logs.find(l => l.id === id);
+    const updatedLogs = logs.filter(l => l.id !== id);
+    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(updatedLogs));
+    if (targetLog && targetLog.vehicleId) {
+      this.recalculateVehicleLogs(targetLog.vehicleId);
+    }
   }
 
   static saveVehicle(vehicleData) {
@@ -361,6 +410,24 @@ export class StorageManager {
     if (data.settings) {
       this.saveSettings(data.settings);
     }
+  }
+
+  static exportCSV(vehicleId = null) {
+    const logs = this.getLogs(vehicleId);
+    const headers = ['Date', 'Odometer', 'Volume', 'PricePerUnit', 'TotalCost', 'FuelType', 'IsFullTank', 'CalculatedL100km', 'Station', 'Notes'];
+    const rows = logs.map(l => [
+      l.date || '',
+      l.odometer || '',
+      l.fuelVolume || '',
+      l.pricePerUnit || '',
+      l.totalCost || '',
+      `"${(l.fuelType || '').replace(/"/g, '""')}"`,
+      l.isFullTank ? 'Yes' : 'No',
+      l.calculatedL100km || '',
+      `"${(l.station || '').replace(/"/g, '""')}"`,
+      `"${(l.notes || '').replace(/"/g, '""')}"`
+    ]);
+    return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   }
 
   static resetToDefault() {

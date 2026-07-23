@@ -99,6 +99,14 @@
   3. Implemented `renderServicesTable()`, `openServiceModal()`, and search/filter listeners in `src/js/ui.js`.
   4. Updated `renderAnalytics()` to factor service costs into total vehicle ownership expenditure.
 
+### 15. Backup Export/Import, Service Reminders, Price Trend Chart, Global Units, and Partial Fill-up Fix
+- **Features & Solved Bugs**:
+  1. **Partial Fill-up Volume Accumulation**: Updated `saveLog()`, `deleteLog()`, and `recalculateVehicleLogs()` in `src/js/storage.js` so partial fill-up volumes (`isFullTank: false`) accumulate across intermediate refuels until the next full tank, correctly computing multi-refuel fuel consumption (`calculatedL100km`).
+  2. **Data Backup & Restore**: Added full JSON backup export (`fuelpulse_backup.json`), CSV refuel log export (`fuel_logs.csv`), and JSON backup import reader/restorer in `src/js/storage.js` and `src/js/ui.js`.
+  3. **Service & Maintenance Reminders**: Added default 10,000 km service interval per vehicle (customizable in `#modalVehicle`). Created dynamic status banner (`#serviceReminderBanner`) showing remaining mileage until next maintenance (*OK*, *Due Soon*, or *Overdue*).
+  4. **Fuel Price Trend Chart**: Added `renderFuelPriceTrendChart` in `src/js/charts.js` and canvas `#priceTrendChart` card in `index.html` to plot fuel price per unit over time.
+  5. **Global Unit & Currency Preferences**: Added Fuel Economy Display Unit selector in Settings tab (`#tab-settings`) and dynamic unit propagation across all DOM labels and reports (`.currency-label`, `.unit-dist-label`, `.unit-vol-label`, `.unit-eff-label`).
+
 ---
 
 ## 🌿 Git Branching Strategy

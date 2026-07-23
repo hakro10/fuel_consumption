@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index-9ZegM4qT.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-C2ZttvTF.css">
+  <script type="module" crossorigin src="/assets/index-zuLTdhTG.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CAM2v5Sb.css">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -255,6 +255,12 @@
           <button id="btnAddServiceTab" class="btn btn-primary">
             <i data-lucide="wrench"></i> Add Service Record
           </button>
+        </div>
+
+        <!-- Service Reminder Banner -->
+        <div id="serviceReminderBanner" class="info-banner" style="margin-bottom: 20px;">
+          <i data-lucide="bell"></i>
+          <span id="serviceReminderText">Next Oil Change & Service: Calculating...</span>
         </div>
 
         <!-- Service KPI Cards -->
@@ -502,6 +508,14 @@
               <!-- Populated dynamically -->
             </div>
           </div>
+
+          <!-- Fuel Price Trend Chart -->
+          <div class="glass-card chart-card large">
+            <h3><i data-lucide="trending-up"></i> Fuel Price Trend Over Time</h3>
+            <div class="chart-wrapper">
+              <canvas id="priceTrendChart"></canvas>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -559,6 +573,16 @@
                 <option value="L">Liters (L)</option>
                 <option value="gal_us">US Gallons (gal)</option>
                 <option value="gal_uk">UK Gallons (gal)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="setConsumptionUnit">Fuel Economy Display Unit</label>
+              <select id="setConsumptionUnit" class="styled-select full-width">
+                <option value="l_100km">Liters per 100 km (L/100km)</option>
+                <option value="km_l">Kilometers per Liter (km/L)</option>
+                <option value="mpg_us">Miles per Gallon US (MPG)</option>
+                <option value="mpg_uk">Miles per Gallon UK (MPG)</option>
               </select>
             </div>
 
@@ -789,9 +813,15 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="vehOdometer">Initial Odometer Reading (<span class="unit-dist-label">km</span>)</label>
-            <input type="number" id="vehOdometer" min="0" step="1" value="100000" required>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vehOdometer">Initial Odometer Reading (<span class="unit-dist-label">km</span>)</label>
+              <input type="number" id="vehOdometer" min="0" step="1" value="100000" required>
+            </div>
+            <div class="form-group">
+              <label for="vehServiceInterval">Service Interval Target (<span class="unit-dist-label">km</span>)</label>
+              <input type="number" id="vehServiceInterval" min="1000" step="500" value="10000" required placeholder="Default 10,000 km">
+            </div>
           </div>
 
           <div class="modal-footer">

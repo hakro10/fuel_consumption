@@ -747,6 +747,23 @@ body {
   text-transform: uppercase;
 }
 
+.info-banner.alert-banner {
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px dashed #222;
+  font-weight: 700;
+}
+
+.info-banner.warning-banner {
+  background: #222;
+  color: #fff;
+  border: 2px solid #222;
+  font-weight: 700;
+}
+
+.info-banner.warning-banner i {
+  color: #fff;
+}
+
 .info-banner i { color: #222; width: 20px; height: 20px; flex-shrink: 0; }
 
 /* KPI Cards Grid */
