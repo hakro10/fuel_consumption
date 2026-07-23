@@ -83,6 +83,10 @@
   1. Added `@media (max-width: 768px)` rules forcing `.header-actions` to `flex-wrap: wrap; width: 100%;` and `.vehicle-selector-wrapper` to `flex: 1 1 100%;`, keeping all controls neatly inside the receipt card.
   2. Fixed background-size on `.app-container::before` & `::after` (`20px 10px`) and normalized top padding (`35px 30px`) and body margins for crisp alignment.
 
+### 12. Testing Branch Badge Position Consistency Across Themes
+- **Issue**: In light mode, `.branch-badge` was using `position: fixed`, pinning it to the browser viewport window while scrolling. In dark mode, `.app-container`'s CSS `filter: invert(1)` created a containing block, causing `position: fixed` to act as `position: absolute` attached to the receipt card.
+- **Solution**: Updated `.branch-badge` in `src/style.css` to `position: absolute; bottom: 16px; right: 16px;` so that it consistently attaches to the bottom-right of the receipt card and scrolls naturally with the receipt in BOTH light and dark mode.
+
 ---
 
 ## 🌿 Git Branching Strategy
