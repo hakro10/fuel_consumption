@@ -121,6 +121,10 @@
   2. Updated `getVehicles()`, `getLogs()`, `getServices()`, and `resetToDefault()` to return empty state arrays (`[]`) without seeding mock data.
   3. Added empty state fallback card in `renderVehiclesGarage()` and vehicle check prompts in `openRefuelModal()` and `openServiceModal()` in `src/js/ui.js`.
 
+### 18. Last Vehicle Deletion Bug Fix
+- **Issue**: Users could not delete the last remaining vehicle in the garage because the Delete button was conditionally hidden (`vehicles.length > 1`).
+- **Solution**: Removed the `vehicles.length > 1` constraint in `renderVehiclesGarage()` in `src/js/ui.js` so the Delete button is always available. Deleting the last vehicle cleanly transitions the app to the empty garage state and resets all views.
+
 ---
 
 ## 🌿 Git Branching Strategy

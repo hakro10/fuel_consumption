@@ -1064,7 +1064,7 @@ export class UIManager {
           <div class="vehicle-card-actions">
             ${!isActive ? `<button class="btn btn-secondary small select-vehicle-btn" data-id="${v.id}">Set Active</button>` : ''}
             <button class="btn btn-secondary small edit-vehicle-btn" data-id="${v.id}">Edit</button>
-            ${vehicles.length > 1 ? `<button class="btn btn-danger small delete-vehicle-btn" data-id="${v.id}">Delete</button>` : ''}
+            <button class="btn btn-danger small delete-vehicle-btn" data-id="${v.id}">Delete</button>
           </div>
         </div>
       `;
@@ -1087,10 +1087,13 @@ export class UIManager {
     grid.querySelectorAll('.delete-vehicle-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
-        if (confirm('Delete this vehicle and switch active profile?')) {
+        if (confirm('Delete this vehicle profile?')) {
           StorageManager.deleteVehicle(id);
           this.populateVehicleDropdown();
           this.renderVehiclesGarage();
+          this.renderLogsTable();
+          this.renderServicesTable();
+          this.renderAnalytics();
           this.showToast('Vehicle deleted', 'error');
         }
       });
