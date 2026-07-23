@@ -138,6 +138,15 @@
 - **Root Cause**: `renderAnalytics()` in `src/js/ui.js` contained an explicit condition `if (totalDist < 0 || sorted.length === 1) totalDist = 0;` which forced total distance to zero whenever only one log existed.
 - **Solution**: Removed the `sorted.length === 1` constraint and updated baseline odometer calculation so distance for single or filtered logs is computed correctly relative to `vehicle.initialOdometer` or the previous log.
 
+### 21. High-Contrast Dark Mode & Chart Contrast Fix
+- **Issue**: Chart labels, legends, tick numbers, and grid lines were dark grey/black on black in Dark Mode, rendering them nearly unreadable.
+- **Root Cause**: 
+  1. `[data-theme="dark"] .app-container canvas` in `src/style.css` had an additional `filter: invert(1) hue-rotate(180deg)` rule, causing canvas elements to be double-inverted back to dark text on a dark background.
+  2. Chart.js instances in `src/js/charts.js` contained hardcoded `#94a3b8` slate colors that inverted to dark muddy tones.
+- **Solution**:
+  1. Removed double-inversion on `canvas` in `src/style.css` so canvas elements invert once cohesively with `.app-container`.
+  2. Updated all Chart.js colors, ticks, legends, and axis titles in `src/js/charts.js` to `#222222` and `Space Mono, monospace`, ensuring crisp bright off-white rendering in dark mode and solid dark charcoal rendering in light mode.
+
 ---
 
 ## 🌿 Git Branching Strategy

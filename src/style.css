@@ -40,9 +40,6 @@
 [data-theme="dark"] .app-container {
   filter: invert(1) hue-rotate(180deg);
 }
-[data-theme="dark"] .app-container canvas {
-  filter: invert(1) hue-rotate(180deg);
-}
 
 /* Base Resets */
 * {

@@ -55,26 +55,26 @@ export function renderEfficiencyTrendChart(canvasId, logs, targetConsumption = 5
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          labels: { color: '#94a3b8', font: { family: 'Outfit, sans-serif' } }
+          labels: { color: '#222222', font: { family: 'Space Mono, monospace' } }
         },
         tooltip: {
-          backgroundColor: '#1e293b',
-          titleColor: '#f8fafc',
-          bodyColor: '#cbd5e1',
+          backgroundColor: '#222222',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
           padding: 12,
-          borderColor: 'rgba(255,255,255,0.1)',
+          borderColor: '#222222',
           borderWidth: 1
         }
       },
       scales: {
         x: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94a3b8' }
+          grid: { color: 'rgba(0, 0, 0, 0.1)' },
+          ticks: { color: '#222222' }
         },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94a3b8' },
-          title: { display: true, text: 'L/100km', color: '#94a3b8' }
+          grid: { color: 'rgba(0, 0, 0, 0.1)' },
+          ticks: { color: '#222222' },
+          title: { display: true, text: 'L/100km', color: '#222222' }
         }
       }
     }
@@ -121,10 +121,12 @@ export function renderExpenseChart(canvasId, logs, currencySymbol = '$') {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          labels: { color: '#94a3b8', font: { family: 'Outfit, sans-serif' } }
+          labels: { color: '#222222', font: { family: 'Space Mono, monospace' } }
         },
         tooltip: {
-          backgroundColor: '#1e293b',
+          backgroundColor: '#222222',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
           callbacks: {
             label: (ctx) => ` Total Spent: ${currencySymbol}${ctx.parsed.y.toFixed(2)}`
           }
@@ -133,12 +135,12 @@ export function renderExpenseChart(canvasId, logs, currencySymbol = '$') {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: '#94a3b8' }
+          ticks: { color: '#222222' }
         },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94a3b8' },
-          title: { display: true, text: `Amount (${currencySymbol})`, color: '#94a3b8' }
+          grid: { color: 'rgba(0, 0, 0, 0.1)' },
+          ticks: { color: '#222222' },
+          title: { display: true, text: `Amount (${currencySymbol})`, color: '#222222' }
         }
       }
     }
@@ -186,7 +188,7 @@ export function renderStationChart(canvasId, logs) {
       plugins: {
         legend: {
           position: 'right',
-          labels: { color: '#94a3b8', font: { family: 'Outfit, sans-serif' } }
+          labels: { color: '#222222', font: { family: 'Space Mono, monospace' } }
         }
       },
     }
