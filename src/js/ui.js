@@ -32,6 +32,7 @@ export class UIManager {
     this.bindServiceFilterEvents();
     this.bindServiceModalEvents();
     this.bindSettingsEvents();
+    this.bindAnalyticsFilterEvents();
     this.bindThemeToggle();
 
     // Initial renders
@@ -719,11 +720,120 @@ export class UIManager {
   }
 
   // Analytics Dashboard Logic
+  bindAnalyticsFilterEvents() {
+    const timeframeSelect = document.getElementById('analyticsTimeframeSelect');
+    const monthSelect = document.getElementById('analyticsMonthSelect');
+    const yearSelect = document.getElementById('analyticsYearSelect');
+    const dateFrom = document.getElementById('analyticsDateFrom');
+    const dateTo = document.getElementById('analyticsDateTo');
+
+    if (!timeframeSelect) return;
+
+    timeframeSelect.addEventListener('change', () => {
+      const mode = timeframeSelect.value;
+      if (monthSelect) monthSelect.classList.toggle('hidden', mode !== 'specific_month');
+      if (yearSelect) yearSelect.classList.toggle('hidden', mode !== 'specific_year');
+      if (dateFrom) dateFrom.classList.toggle('hidden', mode !== 'custom');
+      if (dateTo) dateTo.classList.toggle('hidden', mode !== 'custom');
+
+      this.renderAnalytics();
+    });
+
+    [monthSelect, yearSelect, dateFrom, dateTo].forEach(el => {
+      if (el) el.addEventListener('change', () => this.renderAnalytics());
+    });
+  }
+
+  populateAnalyticsFilterDropdowns(logs, services) {
+    const monthSelect = document.getElementById('analyticsMonthSelect');
+    const yearSelect = document.getElementById('analyticsYearSelect');
+    if (!monthSelect || !yearSelect) return;
+
+    // Only populate if not already populated or if list changed
+    if (monthSelect.children.length > 0 && monthSelect.dataset.populated === 'true') return;
+
+    const allDates = [...logs, ...services].map(x => x.date).filter(Boolean);
+    const monthsSet = new Set();
+    const yearsSet = new Set();
+
+    allDates.forEach(dStr => {
+      const parts = dStr.split('-');
+      if (parts.length >= 2) {
+        monthsSet.add(`${parts[0]}-${parts[1]}`);
+        yearsSet.add(parts[0]);
+      }
+    });
+
+    const sortedMonths = Array.from(monthsSet).sort().reverse();
+    const sortedYears = Array.from(yearsSet).sort().reverse();
+
+    monthSelect.innerHTML = sortedMonths.map(m => {
+      const [y, mNum] = m.split('-');
+      const d = new Date(parseInt(y, 10), parseInt(mNum, 10) - 1, 1);
+      const label = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+      return `<option value="${m}">${label}</option>`;
+    }).join('');
+
+    yearSelect.innerHTML = sortedYears.map(y => `<option value="${y}">${y}</option>`).join('');
+    monthSelect.dataset.populated = 'true';
+  }
+
+  getFilteredAnalyticsData(logs, services) {
+    const mode = document.getElementById('analyticsTimeframeSelect')?.value || 'all';
+    const monthVal = document.getElementById('analyticsMonthSelect')?.value;
+    const yearVal = document.getElementById('analyticsYearSelect')?.value;
+    const fromVal = document.getElementById('analyticsDateFrom')?.value;
+    const toVal = document.getElementById('analyticsDateTo')?.value;
+
+    const filterItem = (item) => {
+      if (!item.date) return false;
+      const dStr = item.date;
+
+      if (mode === 'all') return true;
+
+      if (mode === 'this_month') {
+        const now = new Date();
+        const curMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        return dStr.startsWith(curMonthStr);
+      }
+
+      if (mode === 'this_year') {
+        const curYearStr = String(new Date().getFullYear());
+        return dStr.startsWith(curYearStr);
+      }
+
+      if (mode === 'specific_month') {
+        return monthVal ? dStr.startsWith(monthVal) : true;
+      }
+
+      if (mode === 'specific_year') {
+        return yearVal ? dStr.startsWith(yearVal) : true;
+      }
+
+      if (mode === 'custom') {
+        if (fromVal && dStr < fromVal) return false;
+        if (toVal && dStr > toVal) return false;
+        return true;
+      }
+
+      return true;
+    };
+
+    return {
+      filteredLogs: logs.filter(filterItem),
+      filteredServices: services.filter(filterItem)
+    };
+  }
+
   renderAnalytics() {
     const activeVehicleId = StorageManager.getActiveVehicleId();
-    const logs = StorageManager.getLogs(activeVehicleId);
+    const rawLogs = StorageManager.getLogs(activeVehicleId);
+    const rawServices = StorageManager.getServices(activeVehicleId);
     const vehicles = StorageManager.getVehicles();
     const currentVehicle = vehicles.find(v => v.id === activeVehicleId) || vehicles[0];
+
+    this.populateAnalyticsFilterDropdowns(rawLogs, rawServices);
+    const { filteredLogs: logs, filteredServices: services } = this.getFilteredAnalyticsData(rawLogs, rawServices);
 
     // Compute KPIs
     let totalDist = 0;
@@ -732,18 +842,23 @@ export class UIManager {
 
     if (logs.length > 0) {
       const sorted = [...logs].sort((a, b) => a.odometer - b.odometer);
-      const startOdo = currentVehicle ? currentVehicle.initialOdometer : sorted[0].odometer;
+      const mode = document.getElementById('analyticsTimeframeSelect')?.value || 'all';
+      const startOdo = (mode === 'all' && currentVehicle) ? currentVehicle.initialOdometer : sorted[0].odometer;
       totalDist = sorted[sorted.length - 1].odometer - startOdo;
-      if (totalDist < 0) totalDist = 0;
-      totalFuel = logs.reduce((sum, l) => sum + l.fuelVolume, 0);
-      totalSpend = logs.reduce((sum, l) => sum + l.totalCost, 0);
+      if (totalDist < 0 || sorted.length === 1) totalDist = 0;
+      totalFuel = logs.reduce((sum, l) => sum + (Number(l.fuelVolume) || 0), 0);
+      totalSpend = logs.reduce((sum, l) => sum + (Number(l.totalCost) || 0), 0);
     }
 
-    const services = StorageManager.getServices(activeVehicleId);
     const totalServiceSpend = services.reduce((sum, s) => sum + (Number(s.cost) || 0), 0);
     const totalOwnershipSpend = totalSpend + totalServiceSpend;
 
-    const avgL100km = totalDist > 0 ? ((totalFuel / totalDist) * 100).toFixed(2) : '0.00';
+    const validCalculated = logs.filter(l => l.calculatedL100km && l.calculatedL100km > 0);
+    const avgL100km = totalDist > 0 
+      ? ((totalFuel / totalDist) * 100).toFixed(2) 
+      : (validCalculated.length > 0
+          ? (validCalculated.reduce((s, l) => s + l.calculatedL100km, 0) / validCalculated.length).toFixed(2)
+          : '0.00');
 
     const elDist = document.getElementById('kpiTotalDist');
     const elFuel = document.getElementById('kpiTotalFuel');
@@ -756,7 +871,7 @@ export class UIManager {
     if (elAvg) elAvg.textContent = `${avgL100km} L/100km`;
 
     // Render Chart.js visualizers
-    renderEfficiencyTrendChart('efficiencyTrendChart', logs, currentVehicle.targetConsumption || 5.5);
+    renderEfficiencyTrendChart('efficiencyTrendChart', logs, currentVehicle?.targetConsumption || 5.5);
     renderExpenseChart('monthlyExpenseChart', logs, this.settings.currency);
     renderStationChart('stationShareChart', logs);
     renderStationEfficiencyChart('stationEfficiencyChart', logs);

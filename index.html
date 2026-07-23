@@ -436,6 +436,34 @@
           <p>Comprehensive visualizations of your vehicle's performance trends and expenses.</p>
         </div>
 
+        <!-- Analytics Timeframe Filter Bar -->
+        <div class="glass-card filter-bar" style="margin-bottom: 24px;">
+          <div class="filter-actions" style="width: 100%; flex-wrap: wrap; gap: 12px; align-items: center;">
+            <div style="flex: 1 1 220px;">
+              <select id="analyticsTimeframeSelect" class="styled-select full-width">
+                <option value="all" selected>All Time (Total)</option>
+                <option value="this_month">This Month</option>
+                <option value="this_year">This Year</option>
+                <option value="specific_month">Specific Month...</option>
+                <option value="specific_year">Specific Year...</option>
+                <option value="custom">Custom Date Range...</option>
+              </select>
+            </div>
+
+            <!-- Dynamic Sub-Filter Controls -->
+            <div id="analyticsSubFilterWrapper" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <select id="analyticsMonthSelect" class="styled-select small hidden">
+                <!-- Populated dynamically -->
+              </select>
+              <select id="analyticsYearSelect" class="styled-select small hidden">
+                <!-- Populated dynamically -->
+              </select>
+              <input type="date" id="analyticsDateFrom" class="styled-select small hidden" aria-label="From Date">
+              <input type="date" id="analyticsDateTo" class="styled-select small hidden" aria-label="To Date">
+            </div>
+          </div>
+        </div>
+
         <!-- Summary KPI Cards -->
         <div class="kpi-grid">
           <div class="glass-card kpi-card">

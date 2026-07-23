@@ -107,6 +107,13 @@
   4. **Fuel Price Trend Chart**: Added `renderFuelPriceTrendChart` in `src/js/charts.js` and canvas `#priceTrendChart` card in `index.html` to plot fuel price per unit over time.
   5. **Global Unit & Currency Preferences**: Added Fuel Economy Display Unit selector in Settings tab (`#tab-settings`) and dynamic unit propagation across all DOM labels and reports (`.currency-label`, `.unit-dist-label`, `.unit-vol-label`, `.unit-eff-label`).
 
+### 16. Flexible Analytics Timeframe & Specific Date Picker Feature
+- **Feature Request**: Allow users in Analytics tab to filter metrics and charts by All Time (Total), This Month, This Year, Specific Month (e.g. July 2026), Specific Year (e.g. 2026), or Custom Date Range.
+- **Solution**:
+  1. Added timeframe filter dropdown (`#analyticsTimeframeSelect`) and dynamic sub-filter pickers (`#analyticsMonthSelect`, `#analyticsYearSelect`, `#analyticsDateFrom`, `#analyticsDateTo`) in `index.html`.
+  2. Implemented `populateAnalyticsFilterDropdowns`, `getFilteredAnalyticsData`, and `bindAnalyticsFilterEvents` in `src/js/ui.js`.
+  3. Updated `renderAnalytics()` to compute KPIs and re-render all 5 Chart.js visualizers using the filtered dataset for the selected timeframe.
+
 ---
 
 ## 🌿 Git Branching Strategy
