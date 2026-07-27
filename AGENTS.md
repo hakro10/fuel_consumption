@@ -147,6 +147,10 @@
   1. Removed double-inversion on `canvas` in `src/style.css` so canvas elements invert once cohesively with `.app-container`.
   2. Updated all Chart.js colors, ticks, legends, and axis titles in `src/js/charts.js` to `#222222` and `Space Mono, monospace`, ensuring crisp bright off-white rendering in dark mode and solid dark charcoal rendering in light mode.
 
+### 22. Branch Visual Indicator Sync & Differentiation
+- **Issue**: Merging `testing` branch into `main` carried over the hardcoded `<div class="branch-badge">TESTING BRANCH</div>` element, causing `main` branch builds to visually display a `TESTING BRANCH` badge and creating confusion that `main` was outdated or un-merged.
+- **Solution**: Updated `index.html` on `main` branch to display `<div class="branch-badge main-branch"><i data-lucide="shield-check"></i> MAIN BRANCH</div>` with solid border styling, accurately identifying `main` branch builds while keeping `testing` branch designated as `TESTING BRANCH`.
+
 ---
 
 ## 🌿 Git Branching Strategy
