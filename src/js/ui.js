@@ -108,6 +108,16 @@ export class UIManager {
         el.textContent = getTranslation(key, lang);
       }
     });
+
+    // Update localized placeholders
+    const searchLog = document.getElementById('logSearchInput');
+    if (searchLog) searchLog.placeholder = getTranslation('search_logs_placeholder', lang);
+
+    const searchService = document.getElementById('serviceSearchInput');
+    if (searchService) searchService.placeholder = getTranslation('search_service_placeholder', lang);
+
+    // Refresh active view elements
+    this.refreshActiveView();
   }
 
   bindLangToggle() {
@@ -409,21 +419,22 @@ export class UIManager {
     if (elCostKm) elCostKm.textContent = `${sym}${stats.costPerDist}`;
     if (elCost100) elCost100.textContent = formatCurrency(stats.costFor100, sym);
 
+    const lang = this.settings.language || 'en';
     if (badge) {
       if (stats.l100km <= 0) {
-        badge.textContent = 'Enter values above';
+        badge.textContent = lang === 'lt' ? 'Įveskite reikšmes aukščiau' : 'Enter values above';
         badge.style.borderColor = 'var(--border-card)';
         badge.style.color = 'var(--text-muted)';
       } else if (stats.l100km < 6.0) {
-        badge.innerHTML = '✨ Excellent Efficiency';
+        badge.innerHTML = `✨ ${getTranslation('good_economy', lang)}`;
         badge.style.borderColor = 'var(--accent-green-border)';
         badge.style.color = 'var(--accent-green)';
       } else if (stats.l100km <= 8.5) {
-        badge.innerHTML = '👍 Good Economy';
+        badge.innerHTML = `👍 ${getTranslation('average_economy', lang)}`;
         badge.style.borderColor = 'rgba(99, 102, 241, 0.4)';
         badge.style.color = 'var(--accent-primary)';
       } else {
-        badge.innerHTML = '⚡ High Fuel Usage';
+        badge.innerHTML = `⚡ ${getTranslation('high_consumption', lang)}`;
         badge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
         badge.style.color = 'var(--accent-amber)';
       }
@@ -565,11 +576,12 @@ export class UIManager {
     document.getElementById('logId').value = '';
     document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
 
+    const lang = this.settings.language || 'en';
     if (logId) {
       const logs = StorageManager.getLogs();
       const log = logs.find(l => l.id === logId);
       if (log) {
-        title.textContent = 'Edit Refuel Entry';
+        title.textContent = getTranslation('modal_edit_refuel_title', lang);
         document.getElementById('logId').value = log.id;
         document.getElementById('logDate').value = log.date;
         document.getElementById('logOdometer').value = log.odometer;
@@ -582,7 +594,7 @@ export class UIManager {
         document.getElementById('logOdometer').removeAttribute('min');
       }
     } else {
-      title.textContent = 'Add Refuel Entry';
+      title.textContent = getTranslation('modal_add_refuel_title', lang);
       // Pre-fill odometer with highest existing odometer or vehicle initial
       const logs = StorageManager.getLogs(activeVehicleId);
       if (logs.length > 0) {
@@ -762,8 +774,9 @@ export class UIManager {
     const services = StorageManager.getServices(activeVehicleId);
     const logs = StorageManager.getLogs(activeVehicleId);
 
+    const lang = this.settings.language || 'en';
     if (service) {
-      title.textContent = 'Edit Service Record';
+      title.textContent = getTranslation('modal_edit_service_title', lang);
       document.getElementById('serviceId').value = service.id;
       document.getElementById('serviceDate').value = service.date;
       document.getElementById('serviceOdometer').value = service.odometer;
@@ -774,7 +787,7 @@ export class UIManager {
       document.getElementById('serviceWorkshop').value = service.workshop || '';
       document.getElementById('serviceNotes').value = service.notes || '';
     } else {
-      title.textContent = 'Add Service Record';
+      title.textContent = getTranslation('modal_add_service_title', lang);
       document.getElementById('serviceId').value = '';
       document.getElementById('serviceDate').value = new Date().toISOString().split('T')[0];
 
@@ -1180,16 +1193,17 @@ export class UIManager {
     const distSinceLast = Math.max(0, currentOdo - lastServiceOdo);
     const remainingKm = interval - distSinceLast;
 
+    const lang = this.settings.language || 'en';
     banner.classList.remove('hidden');
     if (remainingKm <= 0) {
       banner.className = 'info-banner warning-banner';
-      textEl.innerHTML = `<strong>⚠️ SERVICE OVERDUE!</strong> Last service was ${distSinceLast.toLocaleString()} ${this.settings.distanceUnit} ago (Overdue by ${Math.abs(remainingKm).toLocaleString()} ${this.settings.distanceUnit}). Target interval: Every ${interval.toLocaleString()} ${this.settings.distanceUnit}.`;
+      textEl.innerHTML = `<strong>⚠️ ${getTranslation('service_overdue', lang)}!</strong> ${lang === 'lt' ? 'Paskutinis aptarnavimas buvo prieš' : 'Last service was'} ${distSinceLast.toLocaleString()} ${this.settings.distanceUnit} (${lang === 'lt' ? 'Vėluoja' : 'Overdue by'} ${Math.abs(remainingKm).toLocaleString()} ${this.settings.distanceUnit}). ${getTranslation('target_interval', lang)}: ${interval.toLocaleString()} ${this.settings.distanceUnit}.`;
     } else if (remainingKm <= 1000) {
       banner.className = 'info-banner alert-banner';
-      textEl.innerHTML = `<strong>⚡ SERVICE DUE SOON!</strong> Next oil change/service due in <strong>${remainingKm.toLocaleString()} ${this.settings.distanceUnit}</strong> (Target interval: ${interval.toLocaleString()} ${this.settings.distanceUnit}).`;
+      textEl.innerHTML = `<strong>⚡ ${getTranslation('service_due_soon', lang)}!</strong> ${lang === 'lt' ? 'Kitas aptarnavimas už' : 'Next oil change/service due in'} <strong>${remainingKm.toLocaleString()} ${this.settings.distanceUnit}</strong> (${getTranslation('target_interval', lang)}: ${interval.toLocaleString()} ${this.settings.distanceUnit}).`;
     } else {
       banner.className = 'info-banner';
-      textEl.innerHTML = `<strong>✓ Service Status OK:</strong> Next maintenance service in <strong>${remainingKm.toLocaleString()} ${this.settings.distanceUnit}</strong> (Target interval: every ${interval.toLocaleString()} ${this.settings.distanceUnit}).`;
+      textEl.innerHTML = `<strong>✓ ${getTranslation('service_status_ok', lang)}:</strong> ${lang === 'lt' ? 'Kitas aptarnavimas už' : 'Next maintenance service in'} <strong>${remainingKm.toLocaleString()} ${this.settings.distanceUnit}</strong> (${getTranslation('target_interval', lang)}: kas ${interval.toLocaleString()} ${this.settings.distanceUnit}).`;
     }
   }
 
@@ -1200,15 +1214,16 @@ export class UIManager {
 
     const vehicles = StorageManager.getVehicles();
     const activeId = StorageManager.getActiveVehicleId();
+    const lang = this.settings.language || 'en';
 
     if (vehicles.length === 0) {
       grid.innerHTML = `
         <div class="glass-card empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center;">
           <i data-lucide="car" class="empty-icon" style="width: 48px; height: 48px; margin-bottom: 12px; display: inline-block;"></i>
-          <h3 style="margin-bottom: 8px;">No Vehicles in Garage</h3>
-          <p style="color: var(--text-muted); margin-bottom: 16px;">Add your first vehicle profile to start tracking fuel logs and service records.</p>
+          <h3 style="margin-bottom: 8px;">${lang === 'lt' ? 'Garaže nėra automobilių' : 'No Vehicles in Garage'}</h3>
+          <p style="color: var(--text-muted); margin-bottom: 16px;">${getTranslation('no_vehicles_found', lang)}</p>
           <button id="btnEmptyAddVehicle" class="btn btn-primary">
-            <i data-lucide="plus-circle"></i> Add Your First Vehicle
+            <i data-lucide="plus-circle"></i> ${getTranslation('btn_add_vehicle_garage', lang)}
           </button>
         </div>
       `;
@@ -1221,7 +1236,7 @@ export class UIManager {
       const isActive = v.id === activeId;
       return `
         <div class="glass-card vehicle-card ${isActive ? 'active-card' : ''}">
-          ${isActive ? '<div class="active-pill">Active Vehicle</div>' : ''}
+          ${isActive ? `<div class="active-pill">${lang === 'lt' ? 'Aktyvus auto' : 'Active Vehicle'}</div>` : ''}
           <div>
             <h3>🚗 ${v.name}</h3>
             <p style="color: var(--text-muted); font-size: 0.85rem;">${v.make} ${v.model} (${v.year})</p>
@@ -1229,27 +1244,27 @@ export class UIManager {
 
           <div class="vehicle-card-specs">
             <div class="spec-item">
-              <span>Fuel Type</span>
+              <span>${getTranslation('lbl_fuel_type', lang)}</span>
               <strong>${v.fuelType}</strong>
             </div>
             <div class="spec-item">
-              <span>Tank Size</span>
-              <strong>${v.tankCapacity} L</strong>
+              <span>${getTranslation('tank_cap', lang)}</span>
+              <strong>${v.tankCapacity} ${this.settings.volumeUnit}</strong>
             </div>
             <div class="spec-item">
-              <span>Target L/100km</span>
+              <span>${getTranslation('target_cons', lang)}</span>
               <strong>${v.targetConsumption} L</strong>
             </div>
             <div class="spec-item">
-              <span>Init Odometer</span>
-              <strong>${v.initialOdometer.toLocaleString()} km</strong>
+              <span>${getTranslation('initial_odo', lang)}</span>
+              <strong>${v.initialOdometer.toLocaleString()} ${this.settings.distanceUnit}</strong>
             </div>
           </div>
 
           <div class="vehicle-card-actions">
-            ${!isActive ? `<button class="btn btn-secondary small select-vehicle-btn" data-id="${v.id}">Set Active</button>` : ''}
-            <button class="btn btn-secondary small edit-vehicle-btn" data-id="${v.id}">Edit</button>
-            <button class="btn btn-danger small delete-vehicle-btn" data-id="${v.id}">Delete</button>
+            ${!isActive ? `<button class="btn btn-secondary small select-vehicle-btn" data-id="${v.id}">${lang === 'lt' ? 'Pasirinkti' : 'Set Active'}</button>` : ''}
+            <button class="btn btn-secondary small edit-vehicle-btn" data-id="${v.id}">${getTranslation('btn_edit', lang)}</button>
+            <button class="btn btn-danger small delete-vehicle-btn" data-id="${v.id}">${getTranslation('btn_delete', lang)}</button>
           </div>
         </div>
       `;
@@ -1295,11 +1310,12 @@ export class UIManager {
     form.reset();
     document.getElementById('vehicleId').value = '';
 
+    const lang = this.settings.language || 'en';
     if (vehicleId) {
       const vehicles = StorageManager.getVehicles();
       const v = vehicles.find(item => item.id === vehicleId);
       if (v) {
-        title.textContent = 'Edit Vehicle Profile';
+        title.textContent = getTranslation('modal_edit_vehicle_title', lang);
         document.getElementById('vehicleId').value = v.id;
         document.getElementById('vehName').value = v.name;
         document.getElementById('vehMake').value = v.make;
@@ -1312,7 +1328,7 @@ export class UIManager {
         document.getElementById('vehServiceInterval').value = v.serviceInterval || 10000;
       }
     } else {
-      title.textContent = 'Add New Vehicle';
+      title.textContent = getTranslation('modal_add_vehicle_title', lang);
       document.getElementById('vehServiceInterval').value = 10000;
     }
 

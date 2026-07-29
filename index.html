@@ -23,7 +23,7 @@
         </div>
         <div class="logo-text">
           <h1>FuelPulse <span>Pro</span></h1>
-          <p class="subtitle">Fuel Economy & Expense Tracker</p>
+          <p class="subtitle" data-i18n="header_subtitle">Fuel Economy & Expense Tracker</p>
         </div>
       </div>
 
@@ -38,7 +38,7 @@
 
         <button id="btnQuickAddRefuel" class="btn btn-primary">
           <i data-lucide="plus-circle"></i>
-          <span>Add Refuel</span>
+          <span data-i18n="add_refuel">Add Refuel</span>
         </button>
 
         <button id="btnUserAuth" class="btn btn-secondary small user-auth-btn" title="Cloud Sync & Account">
@@ -96,18 +96,18 @@
       <!-- TAB 1: QUICK CALCULATOR -->
       <section id="tab-calculator" class="tab-view active">
         <div class="view-header">
-          <h2>Instant Fuel Economy Calculator</h2>
-          <p>Calculate your vehicle's fuel consumption and trip costs on the fly.</p>
+          <h2 data-i18n="calc_title">Instant Fuel Economy Calculator</h2>
+          <p data-i18n="calc_subtitle">Calculate your vehicle's fuel consumption and trip costs on the fly.</p>
         </div>
 
         <div class="calculator-grid">
           <!-- Inputs Card -->
           <div class="glass-card calculator-inputs">
-            <h3><i data-lucide="sliders"></i> Input Parameters</h3>
+            <h3><i data-lucide="sliders"></i> <span data-i18n="input_parameters">Input Parameters</span></h3>
 
             <div class="form-group">
               <label for="calcDistance">
-                Distance Traveled (<span class="unit-dist-label">km</span>)
+                <span data-i18n="distance_traveled">Distance Traveled</span> (<span class="unit-dist-label">km</span>)
               </label>
               <div class="input-with-suffix">
                 <input type="number" id="calcDistance" value="500" min="1" step="0.1" placeholder="e.g. 500">
@@ -118,7 +118,7 @@
 
             <div class="form-group">
               <label for="calcVolume">
-                Fuel Consumed / Refueled (<span class="unit-vol-label">L</span>)
+                <span data-i18n="fuel_consumed">Fuel Consumed / Refueled</span> (<span class="unit-vol-label">L</span>)
               </label>
               <div class="input-with-suffix">
                 <input type="number" id="calcVolume" value="38" min="0.1" step="0.1" placeholder="e.g. 38">
@@ -129,7 +129,7 @@
 
             <div class="form-group">
               <label for="calcPrice">
-                Price per <span class="unit-vol-label">L</span> (<span class="currency-label">$</span>)
+                <span data-i18n="price_per_unit">Price per Unit</span> (<span class="currency-label">$</span>)
               </label>
               <div class="input-with-prefix">
                 <span class="prefix currency-label">$</span>
@@ -140,35 +140,35 @@
 
           <!-- Results Display Card -->
           <div class="glass-card calculator-results">
-            <h3><i data-lucide="gauge"></i> Efficiency Metrics</h3>
+            <h3><i data-lucide="gauge"></i> <span data-i18n="efficiency_metrics">Efficiency Metrics</span></h3>
 
             <!-- Hero Result Card -->
             <div class="hero-metric-card">
-              <div class="metric-label">Fuel Consumption</div>
+              <div class="metric-label" data-i18n="fuel_consumption">Fuel Consumption</div>
               <div class="hero-value-wrapper">
                 <span id="resL100km" class="hero-value">7.60</span>
                 <span class="hero-unit">L/100km</span>
               </div>
               <div class="efficiency-badge" id="resEfficiencyRating">
-                <i data-lucide="sparkles"></i> Good Efficiency
+                <i data-lucide="sparkles"></i> <span data-i18n="good_economy">Good Economy</span>
               </div>
             </div>
 
             <div class="metrics-grid">
               <div class="mini-metric">
-                <div class="mini-label">km per Liter</div>
+                <div class="mini-label" data-i18n="km_per_liter">km per Liter</div>
                 <div id="resKmL" class="mini-value">13.16</div>
                 <div class="mini-unit">km/L</div>
               </div>
 
               <div class="mini-metric">
-                <div class="mini-label">US Economy</div>
+                <div class="mini-label" data-i18n="us_economy">US Economy</div>
                 <div id="resMpgUs" class="mini-value">30.95</div>
                 <div class="mini-unit">MPG</div>
               </div>
 
               <div class="mini-metric">
-                <div class="mini-label">UK Economy</div>
+                <div class="mini-label" data-i18n="uk_economy">UK Economy</div>
                 <div id="resMpgUk" class="mini-value">37.17</div>
                 <div class="mini-unit">MPG</div>
               </div>
@@ -176,18 +176,18 @@
 
             <hr class="divider">
 
-            <h3><i data-lucide="coins"></i> Financial Breakdown</h3>
+            <h3><i data-lucide="coins"></i> <span data-i18n="financial_breakdown">Financial Breakdown</span></h3>
             <div class="cost-summary-list">
               <div class="cost-item">
-                <span>Total Fuel Cost</span>
+                <span data-i18n="total_fuel_cost">Total Fuel Cost</span>
                 <strong id="resTotalCost" class="highlight-cost">$62.70</strong>
               </div>
               <div class="cost-item">
-                <span>Cost per <span class="unit-dist-label">km</span></span>
+                <span><span data-i18n="cost_per_dist">Cost per Distance</span> (<span class="unit-dist-label">km</span>)</span>
                 <strong id="resCostPerKm">$0.125</strong>
               </div>
               <div class="cost-item">
-                <span>Cost for 100 <span class="unit-dist-label">km</span></span>
+                <span><span data-i18n="cost_for_100">Cost for 100</span> (<span class="unit-dist-label">km</span>)</span>
                 <strong id="resCostFor100">$12.54</strong>
               </div>
             </div>
@@ -199,11 +199,11 @@
       <section id="tab-logs" class="tab-view">
         <div class="view-header flex-between">
           <div>
-            <h2>Refueling Log & Fuel History</h2>
-            <p>Track fill-ups, monitor real-world fuel economy, and manage expenses.</p>
+            <h2 data-i18n="logs_header_title">Refueling Log & Fuel History</h2>
+            <p data-i18n="logs_header_subtitle">Track fill-ups, monitor real-world fuel economy, and manage expenses.</p>
           </div>
           <button id="btnAddLogTab" class="btn btn-primary">
-            <i data-lucide="plus"></i> Add New Refuel
+            <i data-lucide="plus"></i> <span data-i18n="btn_add_new_refuel">+ Add New Refuel</span>
           </button>
         </div>
 
@@ -216,12 +216,12 @@
 
           <div class="filter-actions">
             <select id="logFilterTank" class="styled-select small">
-              <option value="all">All Tanks</option>
-              <option value="full">Full Tank Only</option>
-              <option value="partial">Partial Tank</option>
+              <option value="all" data-i18n="filter_all_tanks">All Tanks</option>
+              <option value="full" data-i18n="filter_full_tank">Full Tank Only</option>
+              <option value="partial" data-i18n="filter_partial_tank">Partial Tank</option>
             </select>
             <button id="btnExportCSV" class="btn btn-secondary small">
-              <i data-lucide="download"></i> Export CSV
+              <i data-lucide="download"></i> <span data-i18n="btn_export_csv">Export CSV</span>
             </button>
           </div>
         </div>
@@ -231,15 +231,15 @@
           <table class="styled-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Odometer</th>
-                <th>Distance</th>
-                <th>Volume</th>
-                <th>Price/Unit</th>
-                <th>Total Spent</th>
-                <th>Actual L/100km</th>
-                <th>Station</th>
-                <th>Actions</th>
+                <th data-i18n="th_date">Date</th>
+                <th data-i18n="th_odometer">Odometer</th>
+                <th data-i18n="th_distance">Distance</th>
+                <th data-i18n="th_volume">Volume</th>
+                <th data-i18n="th_price_unit">Price/Unit</th>
+                <th data-i18n="th_total_spent">Total Spent</th>
+                <th data-i18n="th_actual_l100km">Actual L/100km</th>
+                <th data-i18n="th_station">Station</th>
+                <th data-i18n="th_actions">Actions</th>
               </tr>
             </thead>
             <tbody id="logsTableBody">
@@ -248,8 +248,8 @@
           </table>
           <div id="logsEmptyState" class="empty-state hidden">
             <i data-lucide="fuel" class="empty-icon"></i>
-            <p>No refuel logs found for this vehicle.</p>
-            <button id="btnEmptyAddLog" class="btn btn-primary small">Add First Log</button>
+            <p data-i18n="no_logs_found">No refuel logs found for this vehicle.</p>
+            <button id="btnEmptyAddLog" class="btn btn-primary small" data-i18n="btn_add_first_log">Add First Log</button>
           </div>
         </div>
       </section>
@@ -258,11 +258,11 @@
       <section id="tab-service" class="tab-view">
         <div class="view-header flex-between">
           <div>
-            <h2>Vehicle Service & Maintenance Tracker</h2>
-            <p>Track repairs, oil changes, replaced parts, workshop logs, and maintenance expenses.</p>
+            <h2 data-i18n="service_header_title">Vehicle Service & Maintenance Tracker</h2>
+            <p data-i18n="service_header_subtitle">Track repairs, oil changes, replaced parts, workshop logs, and maintenance expenses.</p>
           </div>
           <button id="btnAddServiceTab" class="btn btn-primary">
-            <i data-lucide="wrench"></i> Add Service Record
+            <i data-lucide="wrench"></i> <span data-i18n="btn_add_service_record">Add Service Record</span>
           </button>
         </div>
 
@@ -276,7 +276,7 @@
         <div class="kpi-grid">
           <div class="glass-card kpi-card">
             <div class="kpi-header">
-              <span>Total Service Spend</span>
+              <span data-i18n="kpi_total_service_spend">Total Service Spend</span>
               <i data-lucide="wallet"></i>
             </div>
             <div id="kpiTotalServiceSpend" class="kpi-value">$0.00</div>
@@ -284,7 +284,7 @@
 
           <div class="glass-card kpi-card">
             <div class="kpi-header">
-              <span>Total Service Records</span>
+              <span data-i18n="kpi_total_service_records">Total Service Records</span>
               <i data-lucide="clipboard-check"></i>
             </div>
             <div id="kpiTotalServiceCount" class="kpi-value">0</div>
@@ -292,7 +292,7 @@
 
           <div class="glass-card kpi-card">
             <div class="kpi-header">
-              <span>Last Service Mileage</span>
+              <span data-i18n="kpi_last_service_mileage">Last Service Mileage</span>
               <i data-lucide="gauge"></i>
             </div>
             <div id="kpiLastServiceOdo" class="kpi-value">-</div>
@@ -300,7 +300,7 @@
 
           <div class="glass-card kpi-card">
             <div class="kpi-header">
-              <span>Avg Service Cost</span>
+              <span data-i18n="kpi_avg_service_cost">Avg Service Cost</span>
               <i data-lucide="calculator"></i>
             </div>
             <div id="kpiAvgServiceCost" class="kpi-value">$0.00</div>
@@ -316,11 +316,11 @@
 
           <div class="filter-actions">
             <select id="serviceFilterType" class="styled-select small">
-              <option value="all">All Service Types</option>
-              <option value="Maintenance">Maintenance</option>
-              <option value="Repair">Repair</option>
-              <option value="Inspection">Inspection</option>
-              <option value="Upgrade">Upgrade</option>
+              <option value="all" data-i18n="filter_all_service_types">All Service Types</option>
+              <option value="Maintenance" data-i18n="filter_maintenance">Maintenance</option>
+              <option value="Repair" data-i18n="filter_repair">Repair</option>
+              <option value="Inspection" data-i18n="filter_inspection">Inspection</option>
+              <option value="Upgrade" data-i18n="filter_upgrade">Upgrade</option>
             </select>
           </div>
         </div>
@@ -330,14 +330,14 @@
           <table class="styled-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Odometer</th>
-                <th>Category</th>
-                <th>Service Title</th>
-                <th>Parts Replaced / Repaired</th>
-                <th>Cost</th>
-                <th>Workshop / Provider</th>
-                <th>Actions</th>
+                <th data-i18n="th_date">Date</th>
+                <th data-i18n="th_odometer">Odometer</th>
+                <th data-i18n="th_category">Category</th>
+                <th data-i18n="th_service_title">Service Title</th>
+                <th data-i18n="th_parts_replaced">Parts Replaced / Repaired</th>
+                <th data-i18n="th_cost">Cost</th>
+                <th data-i18n="th_workshop">Workshop / Provider</th>
+                <th data-i18n="th_actions">Actions</th>
               </tr>
             </thead>
             <tbody id="serviceTableBody">
@@ -346,8 +346,8 @@
           </table>
           <div id="serviceEmptyState" class="empty-state hidden">
             <i data-lucide="wrench" class="empty-icon"></i>
-            <p>No service records found for this vehicle.</p>
-            <button id="btnEmptyAddService" class="btn btn-primary small">Add First Service</button>
+            <p data-i18n="no_services_found">No service records found for this vehicle.</p>
+            <button id="btnEmptyAddService" class="btn btn-primary small" data-i18n="btn_add_first_service">Add First Service</button>
           </div>
         </div>
       </section>
@@ -355,16 +355,16 @@
       <!-- TAB 3: TRIP PLANNER -->
       <section id="tab-planner" class="tab-view">
         <div class="view-header">
-          <h2>Trip Cost Estimator</h2>
-          <p>Plan upcoming trips and estimate precise fuel requirements and expense.</p>
+          <h2 data-i18n="planner_header_title">Trip Cost Estimator</h2>
+          <p data-i18n="planner_header_subtitle">Plan upcoming trips and estimate precise fuel requirements and expense.</p>
         </div>
 
         <div class="calculator-grid">
           <div class="glass-card">
-            <h3><i data-lucide="map-pin"></i> Trip Parameters</h3>
+            <h3><i data-lucide="map-pin"></i> <span data-i18n="trip_parameters">Trip Parameters</span></h3>
             
             <div class="form-group">
-              <label for="tripDistance">Planned Trip Distance (<span class="unit-dist-label">km</span>)</label>
+              <label for="tripDistance"><span data-i18n="planned_trip_dist">Planned Trip Distance</span> (<span class="unit-dist-label">km</span>)</label>
               <div class="input-with-suffix">
                 <input type="number" id="tripDistance" value="450" min="1" step="1">
                 <span class="suffix unit-dist-label">km</span>
@@ -372,7 +372,7 @@
             </div>
 
             <div class="form-group">
-              <label for="tripConsumption">Vehicle Avg Consumption (L/100km)</label>
+              <label for="tripConsumption" data-i18n="vehicle_avg_consumption">Vehicle Avg Consumption (L/100km)</label>
               <div class="input-with-suffix">
                 <input type="number" id="tripConsumption" value="6.5" min="0.5" step="0.1">
                 <span class="suffix">L/100km</span>
@@ -380,7 +380,7 @@
             </div>
 
             <div class="form-group">
-              <label for="tripPrice">Current Fuel Price per <span class="unit-vol-label">L</span></label>
+              <label for="tripPrice"><span data-i18n="current_fuel_price">Current Fuel Price per</span> <span class="unit-vol-label">L</span></label>
               <div class="input-with-prefix">
                 <span class="prefix currency-label">$</span>
                 <input type="number" id="tripPrice" value="1.65" min="0" step="0.01">
@@ -388,25 +388,25 @@
             </div>
 
             <div class="form-group">
-              <label for="tripConditions">Driving Conditions / Terrain</label>
+              <label for="tripConditions" data-i18n="driving_conditions">Driving Conditions / Terrain</label>
               <select id="tripConditions" class="styled-select full-width">
-                <option value="0.9">Highway Driving (-10% fuel)</option>
-                <option value="1.0" selected>Combined / Normal Driving (Standard)</option>
-                <option value="1.2">City Traffic & Stop-and-Go (+20% fuel)</option>
-                <option value="1.35">Mountain Pass / Heavy Load / Off-Road (+35% fuel)</option>
+                <option value="0.9" data-i18n="cond_highway">Highway Driving (-10% fuel)</option>
+                <option value="1.0" selected data-i18n="cond_combined">Combined / Normal Driving (Standard)</option>
+                <option value="1.2" data-i18n="cond_city">City Traffic & Stop-and-Go (+20% fuel)</option>
+                <option value="1.35" data-i18n="cond_mountain">Mountain Pass / Heavy Load / Off-Road (+35% fuel)</option>
               </select>
             </div>
           </div>
 
           <div class="glass-card planner-results">
-            <h3><i data-lucide="compass"></i> Estimated Trip Requirements</h3>
+            <h3><i data-lucide="compass"></i> <span data-i18n="estimated_trip_requirements">Estimated Trip Requirements</span></h3>
 
             <div class="planner-stat-card">
               <div class="stat-icon-wrapper blue">
                 <i data-lucide="droplet"></i>
               </div>
               <div class="stat-content">
-                <div class="stat-label">Estimated Fuel Needed</div>
+                <div class="stat-label" data-i18n="est_fuel_needed">Estimated Fuel Needed</div>
                 <div id="tripFuelNeeded" class="stat-val">29.25 L</div>
               </div>
             </div>
@@ -416,7 +416,7 @@
                 <i data-lucide="wallet"></i>
               </div>
               <div class="stat-content">
-                <div class="stat-label">Estimated Trip Cost</div>
+                <div class="stat-label" data-i18n="est_trip_cost">Estimated Trip Cost</div>
                 <div id="tripTotalCost" class="stat-val">$48.26</div>
               </div>
             </div>
@@ -426,14 +426,14 @@
                 <i data-lucide="gauge"></i>
               </div>
               <div class="stat-content">
-                <div class="stat-label">Effective Driving Rate</div>
+                <div class="stat-label" data-i18n="effective_driving_rate">Effective Driving Rate</div>
                 <div id="tripEffectiveRate" class="stat-val">6.5 L/100km</div>
               </div>
             </div>
 
             <div class="info-banner">
               <i data-lucide="info"></i>
-              <span>Pro Tip: Smooth acceleration and maintaining a steady 90-100 km/h speed can reduce fuel usage by up to 15%.</span>
+              <span><strong data-i18n="pro_tip_title">PRO TIP</strong>: <span data-i18n="pro_tip_desc">Smooth acceleration and maintaining a steady 90-100 km/h speed can reduce fuel usage by up to 15%.</span></span>
             </div>
           </div>
         </div>
@@ -442,8 +442,8 @@
       <!-- TAB 4: ANALYTICS & REPORTS -->
       <section id="tab-analytics" class="tab-view">
         <div class="view-header">
-          <h2>Analytics & Efficiency Dashboard</h2>
-          <p>Comprehensive visualizations of your vehicle's performance trends and expenses.</p>
+          <h2 data-i18n="analytics_header_title">Analytics & Reporting Dashboard</h2>
+          <p data-i18n="analytics_header_subtitle">Comprehensive visualizations of your vehicle's performance trends and expenses.</p>
         </div>
 
         <!-- Analytics Timeframe Filter Bar -->
@@ -451,12 +451,12 @@
           <div class="filter-actions" style="width: 100%; flex-wrap: wrap; gap: 12px; align-items: center;">
             <div style="flex: 1 1 220px;">
               <select id="analyticsTimeframeSelect" class="styled-select full-width">
-                <option value="all" selected>All Time (Total)</option>
-                <option value="this_month">This Month</option>
-                <option value="this_year">This Year</option>
-                <option value="specific_month">Specific Month...</option>
-                <option value="specific_year">Specific Year...</option>
-                <option value="custom">Custom Date Range...</option>
+                <option value="all" selected data-i18n="timeframe_all">All Time (Total History)</option>
+                <option value="this_month" data-i18n="timeframe_this_month">This Month</option>
+                <option value="this_year" data-i18n="timeframe_this_year">This Year</option>
+                <option value="specific_month" data-i18n="timeframe_select_month">Specific Month...</option>
+                <option value="specific_year" data-i18n="timeframe_select_year">Specific Year...</option>
+                <option value="custom" data-i18n="timeframe_custom">Custom Date Range...</option>
               </select>
             </div>
 
@@ -478,7 +478,7 @@
         <div class="kpi-grid">
           <div class="glass-card kpi-card">
             <div class="kpi-header">
-              <span>Total Distance Logged</span>
+              <span data-i18n="kpi_total_distance">Total Distance Logged</span>
               <i data-lucide="milestone"></i>
             </div>
             <div id="kpiTotalDist" class="kpi-value">3,630 km</div>
@@ -486,7 +486,7 @@
 
           <div class="glass-card kpi-card">
             <div class="kpi-header">
-              <span>Total Fuel Consumed</span>
+              <span data-i18n="kpi_total_fuel">Total Fuel Refueled</span>
               <i data-lucide="droplets"></i>
             </div>
             <div id="kpiTotalFuel" class="kpi-value">204.1 L</div>
@@ -494,7 +494,7 @@
 
           <div class="glass-card kpi-card">
             <div class="kpi-header">
-              <span>Total Fuel Spend</span>
+              <span data-i18n="kpi_total_spend">Total Fuel Spend</span>
               <i data-lucide="receipt"></i>
             </div>
             <div id="kpiTotalSpend" class="kpi-value">$347.78</div>
@@ -502,7 +502,7 @@
 
           <div class="glass-card kpi-card">
             <div class="kpi-header">
-              <span>Avg Consumption</span>
+              <span data-i18n="kpi_avg_consumption">Avg Consumption</span>
               <i data-lucide="activity"></i>
             </div>
             <div id="kpiAvgConsumption" class="kpi-value">5.62 L/100km</div>
@@ -513,7 +513,7 @@
         <div class="charts-grid">
           <!-- Line Chart -->
           <div class="glass-card chart-card large">
-            <h3><i data-lucide="trending-down"></i> Fuel Efficiency Trend Over Time</h3>
+            <h3><i data-lucide="trending-down"></i> <span data-i18n="chart_efficiency_trend">Fuel Efficiency Trend Over Time</span></h3>
             <div class="chart-wrapper">
               <canvas id="efficiencyTrendChart"></canvas>
             </div>
@@ -521,7 +521,7 @@
 
           <!-- Bar Chart -->
           <div class="glass-card chart-card">
-            <h3><i data-lucide="bar-chart-3"></i> Monthly Spending Breakdown</h3>
+            <h3><i data-lucide="bar-chart-3"></i> <span data-i18n="chart_monthly_spending">Monthly Spending Breakdown</span></h3>
             <div class="chart-wrapper">
               <canvas id="monthlyExpenseChart"></canvas>
             </div>
@@ -529,7 +529,7 @@
 
           <!-- Doughnut Chart -->
           <div class="glass-card chart-card">
-            <h3><i data-lucide="pie-chart"></i> Refuel Stations Share</h3>
+            <h3><i data-lucide="pie-chart"></i> <span data-i18n="chart_station_share">Refuel Stations Share</span></h3>
             <div class="chart-wrapper">
               <canvas id="stationShareChart"></canvas>
             </div>
@@ -537,7 +537,7 @@
 
           <!-- Station Efficiency Chart & Breakdown -->
           <div class="glass-card chart-card large">
-            <h3><i data-lucide="award"></i> Station Fuel Efficiency Comparison (L/100km)</h3>
+            <h3><i data-lucide="award"></i> <span data-i18n="chart_station_efficiency">Station Fuel Efficiency Comparison</span> (L/100km)</h3>
             <div class="chart-wrapper">
               <canvas id="stationEfficiencyChart"></canvas>
             </div>
@@ -548,7 +548,7 @@
 
           <!-- Fuel Price Trend Chart -->
           <div class="glass-card chart-card large">
-            <h3><i data-lucide="trending-up"></i> Fuel Price Trend Over Time</h3>
+            <h3><i data-lucide="trending-up"></i> <span data-i18n="chart_price_trend">Fuel Price Trend Over Time</span></h3>
             <div class="chart-wrapper">
               <canvas id="priceTrendChart"></canvas>
             </div>
@@ -560,11 +560,11 @@
       <section id="tab-vehicles" class="tab-view">
         <div class="view-header flex-between">
           <div>
-            <h2>Vehicle Garage</h2>
-            <p>Manage your fleet, customize vehicle targets, and switch active profiles.</p>
+            <h2 data-i18n="garage_header_title">Vehicle Garage</h2>
+            <p data-i18n="garage_header_subtitle">Manage your fleet, customize vehicle targets, and switch active profiles.</p>
           </div>
           <button id="btnAddVehicleModal" class="btn btn-primary">
-            <i data-lucide="plus-circle"></i> Add Vehicle
+            <i data-lucide="plus-circle"></i> <span data-i18n="btn_add_vehicle_garage">+ Add Vehicle</span>
           </button>
         </div>
 
@@ -576,13 +576,13 @@
       <!-- TAB 6: SETTINGS -->
       <section id="tab-settings" class="tab-view">
         <div class="view-header">
-          <h2>Application Settings & Data</h2>
-          <p>Customize measurement units, currency symbols, and manage data backups.</p>
+          <h2 data-i18n="settings_header_title">Application Settings & Data</h2>
+          <p data-i18n="settings_header_subtitle">Customize measurement units, currency symbols, and manage data backups.</p>
         </div>
 
         <div class="settings-grid">
           <div class="glass-card">
-            <h3><i data-lucide="sliders-horizontal"></i> Unit & Currency Preferences</h3>
+            <h3><i data-lucide="sliders-horizontal"></i> <span data-i18n="unit_preferences">Unit & Currency Preferences</span></h3>
 
             <div class="form-group">
               <label for="setLanguage" data-i18n="language_label">Display Language</label>
@@ -605,7 +605,7 @@
             </div>
 
             <div class="form-group">
-              <label for="setDistanceUnit">Distance Unit</label>
+              <label for="setDistanceUnit" data-i18n="distance_unit_label">Distance Unit</label>
               <select id="setDistanceUnit" class="styled-select full-width">
                 <option value="km">Kilometers (km)</option>
                 <option value="mi">Miles (mi)</option>
@@ -613,7 +613,7 @@
             </div>
 
             <div class="form-group">
-              <label for="setVolumeUnit">Volume Unit</label>
+              <label for="setVolumeUnit" data-i18n="volume_unit_label">Volume Unit</label>
               <select id="setVolumeUnit" class="styled-select full-width">
                 <option value="L">Liters (L)</option>
                 <option value="gal_us">US Gallons (gal)</option>
@@ -622,7 +622,7 @@
             </div>
 
             <div class="form-group">
-              <label for="setConsumptionUnit">Fuel Economy Display Unit</label>
+              <label for="setConsumptionUnit" data-i18n="consumption_unit_label">Fuel Economy Display Unit</label>
               <select id="setConsumptionUnit" class="styled-select full-width">
                 <option value="l_100km">Liters per 100 km (L/100km)</option>
                 <option value="km_l">Kilometers per Liter (km/L)</option>
@@ -632,30 +632,30 @@
             </div>
 
             <button id="btnSaveSettings" class="btn btn-primary">
-              <i data-lucide="check"></i> Save Preferences
+              <i data-lucide="check"></i> <span data-i18n="save_settings">Save Preferences</span>
             </button>
           </div>
 
           <div class="glass-card">
-            <h3><i data-lucide="database"></i> Data Backup & Reset</h3>
-            <p class="card-desc">Export your refueling data for Excel/Backup or import an existing backup.</p>
+            <h3><i data-lucide="database"></i> <span data-i18n="data_backup_reset">Data Backup & Reset</span></h3>
+            <p class="card-desc" data-i18n="backup_desc">Export your refueling data for Excel/Backup or import an existing backup.</p>
 
             <div class="button-group-vertical">
               <button id="btnExportJSON" class="btn btn-secondary">
-                <i data-lucide="file-json"></i> Export Full Backup (JSON)
+                <i data-lucide="file-json"></i> <span data-i18n="btn_export_json">Export Full Backup (JSON)</span>
               </button>
 
               <div class="file-upload-wrapper">
                 <input type="file" id="importJSONFile" accept=".json" class="file-input-hidden">
                 <button id="btnImportJSONTrigger" class="btn btn-secondary">
-                  <i data-lucide="upload"></i> Import Backup (JSON)
+                  <i data-lucide="upload"></i> <span data-i18n="btn_import_json">Import Backup (JSON)</span>
                 </button>
               </div>
 
               <hr class="divider">
 
               <button id="btnResetSampleData" class="btn btn-danger">
-                <i data-lucide="rotate-ccw"></i> Reset to Sample Data
+                <i data-lucide="rotate-ccw"></i> <span data-i18n="btn_reset_data">Reset to Sample Data</span>
               </button>
             </div>
           </div>
@@ -668,7 +668,7 @@
     <div id="modalRefuel" class="modal-overlay hidden">
       <div class="glass-card modal-container">
         <div class="modal-header">
-          <h3 id="modalRefuelTitle">Add Refuel Entry</h3>
+          <h3 id="modalRefuelTitle" data-i18n="modal_add_refuel_title">Add Refuel Entry</h3>
           <button class="modal-close btn-icon" id="btnCloseRefuelModal">&times;</button>
         </div>
         <form id="formRefuel">
@@ -676,31 +676,31 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="logDate">Date</label>
+              <label for="logDate" data-i18n="lbl_date">Date</label>
               <input type="date" id="logDate" required>
             </div>
 
             <div class="form-group">
-              <label for="logOdometer">Odometer Reading (<span class="unit-dist-label">km</span>)</label>
+              <label for="logOdometer"><span data-i18n="lbl_odometer">Odometer Reading</span> (<span class="unit-dist-label">km</span>)</label>
               <input type="number" id="logOdometer" min="0" step="1" required placeholder="e.g. 145630">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="logVolume">Fuel Volume (<span class="unit-vol-label">L</span>)</label>
+              <label for="logVolume"><span data-i18n="lbl_volume">Fuel Volume</span> (<span class="unit-vol-label">L</span>)</label>
               <input type="number" id="logVolume" min="0.1" step="0.01" required placeholder="e.g. 52.4">
             </div>
 
             <div class="form-group">
-              <label for="logPrice">Price per Unit (<span class="currency-label">$</span>)</label>
+              <label for="logPrice"><span data-i18n="lbl_price">Price per Unit</span> (<span class="currency-label">$</span>)</label>
               <input type="number" id="logPrice" min="0" step="0.001" required placeholder="e.g. 1.67">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="logFuelType">Fuel Type</label>
+              <label for="logFuelType" data-i18n="lbl_fuel_type">Fuel Type</label>
               <select id="logFuelType" class="styled-select full-width">
                 <option value="Gasoline 95">Gasoline 95</option>
                 <option value="Gasoline 98">Gasoline 98</option>
@@ -711,26 +711,26 @@
             </div>
 
             <div class="form-group">
-              <label for="logStation">Gas Station</label>
-              <input type="text" id="logStation" placeholder="e.g. Shell, BP, Exxon">
+              <label for="logStation" data-i18n="lbl_station">Gas Station</label>
+              <input type="text" id="logStation" placeholder="e.g. Shell, BP, Circle K">
             </div>
           </div>
 
           <div class="form-group checkbox-group">
             <label class="checkbox-label">
               <input type="checkbox" id="logIsFullTank" checked>
-              <span>Full Tank Refuel (Used to calculate accurate consumption)</span>
+              <span data-i18n="lbl_is_full_tank">Full Tank Refuel</span>
             </label>
           </div>
 
           <div class="form-group">
-            <label for="logNotes">Notes / Trip details (Optional)</label>
+            <label for="logNotes" data-i18n="lbl_notes">Notes / Remarks</label>
             <input type="text" id="logNotes" placeholder="e.g. Vacation drive, highway cruising">
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="btnCancelRefuelModal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Refuel</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelRefuelModal" data-i18n="btn_cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" data-i18n="btn_save">Save Refuel</button>
           </div>
         </form>
       </div>
@@ -740,7 +740,7 @@
     <div id="modalService" class="modal-overlay hidden">
       <div class="glass-card modal-container">
         <div class="modal-header">
-          <h3 id="modalServiceTitle">Add Service Record</h3>
+          <h3 id="modalServiceTitle" data-i18n="modal_add_service_title">Add Service Record</h3>
           <button type="button" class="btn-icon" id="btnCloseServiceModal" aria-label="Close modal">
             <i data-lucide="x"></i>
           </button>
@@ -751,54 +751,54 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="serviceDate">Service Date</label>
+              <label for="serviceDate" data-i18n="lbl_date">Service Date</label>
               <input type="date" id="serviceDate" required>
             </div>
             <div class="form-group">
-              <label for="serviceOdometer">Odometer Reading (<span class="unit-dist-label">km</span>)</label>
+              <label for="serviceOdometer"><span data-i18n="lbl_odometer">Odometer Reading</span> (<span class="unit-dist-label">km</span>)</label>
               <input type="number" id="serviceOdometer" min="0" step="1" required>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="serviceType">Service Category / Type</label>
+              <label for="serviceType" data-i18n="lbl_service_type">Service Category / Type</label>
               <select id="serviceType" class="styled-select full-width" required>
-                <option value="Maintenance">Maintenance (Oil, Filters, Fluids)</option>
-                <option value="Repair">Repair (Brakes, Engine, Suspension)</option>
-                <option value="Inspection">Inspection (MOT, Safety Check)</option>
-                <option value="Upgrade">Upgrade (Tuning, Audio, Custom)</option>
+                <option value="Maintenance" data-i18n="filter_maintenance">Maintenance (Oil, Filters, Fluids)</option>
+                <option value="Repair" data-i18n="filter_repair">Repair (Brakes, Engine, Suspension)</option>
+                <option value="Inspection" data-i18n="filter_inspection">Inspection (MOT, Safety Check)</option>
+                <option value="Upgrade" data-i18n="filter_upgrade">Upgrade (Tuning, Audio, Custom)</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="serviceCost">Total Cost (<span class="currency-label">$</span>)</label>
+              <label for="serviceCost"><span data-i18n="lbl_total_cost">Total Cost</span> (<span class="currency-label">$</span>)</label>
               <input type="number" id="serviceCost" min="0" step="0.01" placeholder="e.g. 150.00" required>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="serviceTitle">Service Title / Brief Summary</label>
+            <label for="serviceTitle" data-i18n="lbl_service_title">Service Title / Brief Summary</label>
             <input type="text" id="serviceTitle" placeholder="e.g. Full Synthetic Oil & Filter Service" required>
           </div>
 
           <div class="form-group">
-            <label for="serviceParts">Parts Replaced / Repaired</label>
+            <label for="serviceParts" data-i18n="lbl_service_parts">Parts Replaced / Repaired</label>
             <input type="text" id="serviceParts" placeholder="e.g. 5W-30 Synthetic Oil, Oil Filter, Cabin Filter">
           </div>
 
           <div class="form-group">
-            <label for="serviceWorkshop">Workshop / Service Provider</label>
+            <label for="serviceWorkshop" data-i18n="lbl_service_workshop">Workshop / Service Provider</label>
             <input type="text" id="serviceWorkshop" placeholder="e.g. VW Main Dealer, Local Garage, DIY">
           </div>
 
           <div class="form-group">
-            <label for="serviceNotes">Additional Notes / Reminders (Optional)</label>
+            <label for="serviceNotes" data-i18n="lbl_notes">Additional Notes / Reminders</label>
             <input type="text" id="serviceNotes" placeholder="e.g. Next service recommended in 15,000 km">
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="btnCancelServiceModal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Service Record</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelServiceModal" data-i18n="btn_cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" data-i18n="btn_save">Save Service Record</button>
           </div>
         </form>
       </div>
@@ -808,35 +808,35 @@
     <div id="modalVehicle" class="modal-overlay hidden">
       <div class="glass-card modal-container">
         <div class="modal-header">
-          <h3 id="modalVehicleTitle">Add New Vehicle</h3>
+          <h3 id="modalVehicleTitle" data-i18n="modal_add_vehicle_title">Add New Vehicle</h3>
           <button class="modal-close btn-icon" id="btnCloseVehicleModal">&times;</button>
         </div>
         <form id="formVehicle">
           <input type="hidden" id="vehicleId">
 
           <div class="form-group">
-            <label for="vehName">Vehicle Display Name</label>
+            <label for="vehName" data-i18n="lbl_veh_name">Vehicle Display Name</label>
             <input type="text" id="vehName" required placeholder="e.g. Daily Passat B8">
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="vehMake">Make / Brand</label>
+              <label for="vehMake" data-i18n="lbl_veh_make">Make / Brand</label>
               <input type="text" id="vehMake" required placeholder="e.g. Volkswagen">
             </div>
             <div class="form-group">
-              <label for="vehModel">Model</label>
+              <label for="vehModel" data-i18n="lbl_veh_model">Model</label>
               <input type="text" id="vehModel" required placeholder="e.g. Passat">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="vehYear">Year</label>
+              <label for="vehYear" data-i18n="lbl_veh_year">Year</label>
               <input type="number" id="vehYear" min="1950" max="2030" value="2020" required>
             </div>
             <div class="form-group">
-              <label for="vehFuelType">Fuel Type</label>
+              <label for="vehFuelType" data-i18n="lbl_fuel_type">Fuel Type</label>
               <select id="vehFuelType" class="styled-select full-width">
                 <option value="Diesel">Diesel</option>
                 <option value="Gasoline 95">Gasoline 95</option>
@@ -849,29 +849,29 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="vehTank">Tank Capacity (L)</label>
+              <label for="vehTank"><span data-i18n="lbl_veh_tank">Tank Capacity</span> (<span class="unit-vol-label">L</span>)</label>
               <input type="number" id="vehTank" min="1" step="1" value="60" required>
             </div>
             <div class="form-group">
-              <label for="vehTarget">Target Consumption (L/100km)</label>
+              <label for="vehTarget" data-i18n="lbl_veh_target">Target Consumption (L/100km)</label>
               <input type="number" id="vehTarget" min="0.1" step="0.1" value="5.5" required>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="vehOdometer">Initial Odometer Reading (<span class="unit-dist-label">km</span>)</label>
+              <label for="vehOdometer"><span data-i18n="lbl_veh_initial_odo">Initial Odometer Reading</span> (<span class="unit-dist-label">km</span>)</label>
               <input type="number" id="vehOdometer" min="0" step="1" value="100000" required>
             </div>
             <div class="form-group">
-              <label for="vehServiceInterval">Service Interval Target (<span class="unit-dist-label">km</span>)</label>
+              <label for="vehServiceInterval"><span data-i18n="lbl_veh_service_interval">Service Interval Target</span> (<span class="unit-dist-label">km</span>)</label>
               <input type="number" id="vehServiceInterval" min="1000" step="500" value="10000" required placeholder="Default 10,000 km">
             </div>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="btnCancelVehicleModal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Vehicle</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelVehicleModal" data-i18n="btn_cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" data-i18n="btn_save">Save Vehicle</button>
           </div>
         </form>
       </div>
@@ -881,32 +881,32 @@
     <div id="modalAuth" class="modal-overlay hidden">
       <div class="glass-card modal-container auth-modal-card">
         <div class="modal-header">
-          <h3><i data-lucide="cloud"></i> FuelPulse Cloud Sync</h3>
+          <h3><i data-lucide="cloud"></i> <span data-i18n="modal_cloud_sync_title">FuelPulse Cloud Sync</span></h3>
           <button class="modal-close btn-icon" id="btnCloseAuthModal">&times;</button>
         </div>
 
         <div id="authGuestView">
           <div class="auth-tabs">
-            <button id="authTabLogin" class="auth-tab-btn active" type="button">Log In</button>
-            <button id="authTabSignup" class="auth-tab-btn" type="button">Sign Up</button>
+            <button id="authTabLogin" class="auth-tab-btn active" type="button" data-i18n="btn_log_in">Log In</button>
+            <button id="authTabSignup" class="auth-tab-btn" type="button" data-i18n="btn_sign_up">Sign Up</button>
           </div>
 
           <form id="formAuth" class="modal-form">
             <div id="authErrorMessage" class="auth-error-msg hidden"></div>
 
             <div class="form-group">
-              <label for="authEmail">Email Address</label>
+              <label for="authEmail" data-i18n="lbl_email">Email Address</label>
               <input type="email" id="authEmail" required placeholder="user@example.com">
             </div>
 
             <div class="form-group">
-              <label for="authPassword">Password</label>
+              <label for="authPassword" data-i18n="lbl_password">Password</label>
               <input type="password" id="authPassword" required minlength="6" placeholder="••••••••">
             </div>
 
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" id="btnCancelAuthModal">Cancel</button>
-              <button type="submit" class="btn btn-primary" id="btnSubmitAuth">Log In</button>
+              <button type="button" class="btn btn-secondary" id="btnCancelAuthModal" data-i18n="btn_cancel">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="btnSubmitAuth" data-i18n="btn_log_in">Log In</button>
             </div>
           </form>
         </div>
@@ -915,7 +915,7 @@
           <div class="user-profile-box">
             <i data-lucide="user-check" class="user-profile-icon"></i>
             <div>
-              <p class="user-profile-title">Logged in as</p>
+              <p class="user-profile-title" data-i18n="logged_in_as">Logged in as</p>
               <p id="authUserEmailDisplay" class="user-profile-email">user@example.com</p>
             </div>
           </div>
@@ -923,15 +923,15 @@
           <div class="sync-status-box">
             <div class="sync-status-row">
               <span>Cloud Status:</span>
-              <span id="cloudStatusBadge" class="badge-status online"><i data-lucide="wifi"></i> Synced to Neon Cloud</span>
+              <span id="cloudStatusBadge" class="badge-status online"><i data-lucide="wifi"></i> <span data-i18n="synced_cloud">Synced to Neon Cloud</span></span>
             </div>
             <button type="button" id="btnManualSync" class="btn btn-secondary small full-width">
-              <i data-lucide="refresh-cw"></i> Sync Data Now
+              <i data-lucide="refresh-cw"></i> <span data-i18n="btn_sync_now">Sync Data Now</span>
             </button>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-danger" id="btnLogoutUser">Log Out</button>
+            <button type="button" class="btn btn-danger" id="btnLogoutUser" data-i18n="btn_log_out">Log Out</button>
           </div>
         </div>
       </div>
@@ -942,7 +942,7 @@
 
     <!-- Branch Version Badge -->
     <div class="branch-badge">
-      <i data-lucide="flask-conical"></i> TESTING BRANCH
+      <i data-lucide="flask-conical"></i> <span data-i18n="testing_branch">TESTING BRANCH</span>
     </div>
   </div>
 
