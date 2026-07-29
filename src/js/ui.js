@@ -1,4 +1,5 @@
 import { StorageManager } from './storage.js';
+import { Api } from './api.js';
 import { 
   calculateQuickStats, 
   estimateTripCost, 
@@ -20,7 +21,7 @@ export class UIManager {
     this.settings = StorageManager.getSettings();
   }
 
-  init() {
+  async init() {
     this.applyTheme(this.settings.theme);
     this.updateUnitLabels();
     this.populateVehicleDropdown();
@@ -34,6 +35,15 @@ export class UIManager {
     this.bindSettingsEvents();
     this.bindAnalyticsFilterEvents();
     this.bindThemeToggle();
+    this.bindAuthEvents();
+
+    // Check Cloud Auth Session & Sync
+    if (Api.isAuthenticated()) {
+      await Api.checkSession();
+      await StorageManager.syncFromCloud();
+      this.populateVehicleDropdown();
+    }
+    this.updateUserHeader();
 
     // Initial renders
     this.renderCalculator();
@@ -42,6 +52,7 @@ export class UIManager {
     this.renderPlanner();
     this.renderVehiclesGarage();
   }
+
 
   // Toast Notification
   showToast(message, type = 'success') {
@@ -76,6 +87,138 @@ export class UIManager {
       });
     }
   }
+
+  // Auth & Cloud Sync Management
+  updateUserHeader() {
+    const userLabel = document.getElementById('userAuthLabel');
+    const user = Api.getUser();
+    if (userLabel) {
+      userLabel.textContent = user ? user.email.split('@')[0] : 'Sign In';
+    }
+  }
+
+  openAuthModal() {
+    const modal = document.getElementById('modalAuth');
+    const user = Api.getUser();
+    const guestView = document.getElementById('authGuestView');
+    const userView = document.getElementById('authUserView');
+    const emailDisplay = document.getElementById('authUserEmailDisplay');
+    const errBox = document.getElementById('authErrorMessage');
+
+    if (errBox) errBox.classList.add('hidden');
+
+    if (user) {
+      guestView?.classList.add('hidden');
+      userView?.classList.remove('hidden');
+      if (emailDisplay) emailDisplay.textContent = user.email;
+    } else {
+      userView?.classList.add('hidden');
+      guestView?.classList.remove('hidden');
+    }
+
+    modal?.classList.remove('hidden');
+  }
+
+  closeAuthModal() {
+    document.getElementById('modalAuth')?.classList.add('hidden');
+  }
+
+  bindAuthEvents() {
+    document.getElementById('btnUserAuth')?.addEventListener('click', () => {
+      this.openAuthModal();
+    });
+
+    document.getElementById('btnCloseAuthModal')?.addEventListener('click', () => {
+      this.closeAuthModal();
+    });
+
+    document.getElementById('btnCancelAuthModal')?.addEventListener('click', () => {
+      this.closeAuthModal();
+    });
+
+    // Auth Tabs (Login vs Signup)
+    let authMode = 'login';
+    const tabLogin = document.getElementById('authTabLogin');
+    const tabSignup = document.getElementById('authTabSignup');
+    const submitBtn = document.getElementById('btnSubmitAuth');
+    const errBox = document.getElementById('authErrorMessage');
+
+    tabLogin?.addEventListener('click', () => {
+      authMode = 'login';
+      tabLogin.classList.add('active');
+      tabSignup?.classList.remove('active');
+      if (submitBtn) submitBtn.textContent = 'Log In';
+      if (errBox) errBox.classList.add('hidden');
+    });
+
+    tabSignup?.addEventListener('click', () => {
+      authMode = 'signup';
+      tabSignup.classList.add('active');
+      tabLogin?.classList.remove('active');
+      if (submitBtn) submitBtn.textContent = 'Create Account';
+      if (errBox) errBox.classList.add('hidden');
+    });
+
+    // Auth Form Submit
+    document.getElementById('formAuth')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        if (authMode === 'signup') {
+          await Api.signup(email, password);
+          this.showToast('Account created successfully!');
+        } else {
+          await Api.login(email, password);
+          this.showToast('Logged in successfully!');
+        }
+
+        await StorageManager.syncLocalDataToCloud();
+        await StorageManager.syncFromCloud();
+
+        this.updateUserHeader();
+        this.populateVehicleDropdown();
+        this.refreshActiveView();
+        this.closeAuthModal();
+      } catch (err) {
+        if (errBox) {
+          errBox.textContent = err.message || 'Authentication failed.';
+          errBox.classList.remove('hidden');
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
+    // Manual Sync
+    document.getElementById('btnManualSync')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btnManualSync');
+      if (btn) btn.disabled = true;
+      try {
+        await StorageManager.syncLocalDataToCloud();
+        await StorageManager.syncFromCloud();
+        this.populateVehicleDropdown();
+        this.refreshActiveView();
+        this.showToast('Cloud data synced successfully!');
+      } catch (err) {
+        this.showToast('Sync failed: ' + err.message, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+
+    // Logout
+    document.getElementById('btnLogoutUser')?.addEventListener('click', () => {
+      Api.logout();
+      this.updateUserHeader();
+      this.showToast('Logged out.');
+      this.closeAuthModal();
+    });
+  }
+
 
   // Unit Labels update across the DOM
   updateUnitLabels() {

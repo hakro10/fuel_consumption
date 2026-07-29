@@ -151,6 +151,15 @@
 - **Issue**: Merging `testing` branch into `main` carried over the hardcoded `<div class="branch-badge">TESTING BRANCH</div>` element, causing `main` branch builds to visually display a `TESTING BRANCH` badge and creating confusion that `main` was outdated or un-merged.
 - **Solution**: Updated `index.html` on `main` branch to display `<div class="branch-badge main-branch"><i data-lucide="shield-check"></i> MAIN BRANCH</div>` with solid border styling, accurately identifying `main` branch builds while keeping `testing` branch designated as `TESTING BRANCH`.
 
+### 23. Neon Postgres DB, Netlify Serverless Functions & Multi-Device Auth Architecture
+- **Feature Request**: Enable multi-device support with cloud database, serverless backend, and user sign-in/login authentication so users can access their vehicles and logs across all devices.
+- **Solution**:
+  1. Created `db/schema.sql` defining Postgres tables (`users`, `user_settings`, `vehicles`, `refuel_logs`, `services`) with UUID primary keys, cascade foreign keys, and indexes.
+  2. Created Netlify serverless functions (`netlify/functions/auth.js` for signup/login/me using `bcryptjs` and `jsonwebtoken`; `netlify/functions/sync.js` for cloud data fetch and batch upserts using `@neondatabase/serverless`).
+  3. Created `src/js/api.js` client handling JWT authentication and Netlify function communication.
+  4. Upgraded `StorageManager` in `src/js/storage.js` to automatically sync data with Neon Postgres when authenticated, while preserving offline/guest `localStorage` fallback.
+  5. Added thermal receipt styled Auth Modal (`#modalAuth`), user header button, and cloud sync status controls in `index.html`, `src/style.css`, and `src/js/ui.js`.
+
 ---
 
 ## 🌿 Git Branching Strategy

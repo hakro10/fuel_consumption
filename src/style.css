@@ -1087,3 +1087,131 @@ body {
 .branch-badge.main-branch {
   border-style: solid;
 }
+
+/* User Account & Cloud Sync Styles */
+.user-auth-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: none !important;
+  font-size: 0.85rem;
+}
+
+.auth-modal-card {
+  max-width: 420px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #222222;
+  padding-bottom: 8px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background: transparent;
+  border: 2px solid transparent;
+  color: #222222;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.auth-tab-btn.active {
+  background: #222222;
+  color: #ffffff;
+  border-color: #222222;
+}
+
+.auth-error-msg {
+  background: rgba(220, 38, 38, 0.1);
+  border: 2px solid #dc2626;
+  color: #dc2626;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.user-profile-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border: 2px solid #222222;
+  margin-bottom: 16px;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.user-profile-icon {
+  width: 28px;
+  height: 28px;
+  color: #222222;
+}
+
+.user-profile-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  margin-bottom: 2px;
+}
+
+.user-profile-email {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.sync-status-box {
+  border: 2px dashed #222222;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+
+.sync-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 2px solid #222222;
+}
+
+.badge-status.online {
+  background: #222222;
+  color: #ffffff;
+}
+
+.badge-status i {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #ffffff;
+  border: 2px solid #dc2626;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+

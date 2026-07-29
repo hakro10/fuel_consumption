@@ -1,6 +1,7 @@
 /**
- * Storage & Data Persistence Manager
+ * Storage & Data Persistence Manager with Cloud Sync Integration
  */
+import { Api } from './api.js';
 
 const STORAGE_KEYS = {
   VEHICLES: 'fuel_counter_vehicles',
@@ -18,10 +19,6 @@ const DEFAULT_SETTINGS = {
   theme: 'dark'
 };
 
-const INITIAL_VEHICLES = [];
-const SAMPLE_LOGS = [];
-const SAMPLE_SERVICES = [];
-
 export class StorageManager {
   static getSettings() {
     try {
@@ -34,14 +31,15 @@ export class StorageManager {
 
   static saveSettings(settings) {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    if (Api.isAuthenticated()) {
+      Api.pushCloudData({ settings }).catch(err => console.warn('Cloud sync error (settings):', err));
+    }
   }
 
   static getVehicles() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.VEHICLES);
-      if (!data) {
-        return [];
-      }
+      if (!data) return [];
       const vehicles = JSON.parse(data);
       let modified = false;
       vehicles.forEach(v => {
@@ -59,15 +57,16 @@ export class StorageManager {
 
   static saveVehicles(vehicles) {
     localStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(vehicles));
+    if (Api.isAuthenticated()) {
+      Api.pushCloudData({ vehicles }).catch(err => console.warn('Cloud sync error (vehicles):', err));
+    }
   }
 
   static getActiveVehicleId() {
     let id = localStorage.getItem(STORAGE_KEYS.ACTIVE_VEHICLE_ID);
     const vehicles = this.getVehicles();
     
-    // Sanitize any corrupt undefined IDs
     if (id === 'undefined') id = null;
-
     if (vehicles.length === 0) return null;
 
     if (!id || !vehicles.some(v => v.id === id)) {
@@ -85,8 +84,6 @@ export class StorageManager {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.LOGS);
       let logs = data ? JSON.parse(data) : [];
-      
-      // Sanitize corrupt logs with undefined IDs
       logs = logs.filter(l => l.id && String(l.id) !== 'undefined');
 
       if (vehicleId !== undefined) {
@@ -99,46 +96,28 @@ export class StorageManager {
     }
   }
 
-  static seedSampleLogs() {
-    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify([]));
-  }
-
   static saveLog(logData) {
     const logs = this.getLogs();
     const existingIndex = logData.id ? logs.findIndex(l => String(l.id) === String(logData.id)) : -1;
 
+    let targetLog;
     if (existingIndex >= 0) {
       logs[existingIndex] = { ...logs[existingIndex], ...logData };
+      targetLog = logs[existingIndex];
     } else {
-      logs.push({
+      targetLog = {
         id: 'log-' + Date.now(),
         ...logData
-      });
-    }
-
-    // Recalculate fuel consumption sequence for this vehicle
-    const vehicleLogs = logs
-      .filter(l => l.vehicleId === logData.vehicleId)
-      .sort((a, b) => a.odometer - b.odometer);
-
-    const vehicles = this.getVehicles();
-    const vehicle = vehicles.find(v => v.id === logData.vehicleId);
-    const initialOdo = vehicle ? vehicle.initialOdometer : 0;
-
-    for (let i = 0; i < vehicleLogs.length; i++) {
-      const curr = vehicleLogs[i];
-      const prevOdo = i === 0 ? initialOdo : vehicleLogs[i - 1].odometer;
-
-      if (curr.isFullTank && prevOdo < curr.odometer) {
-        const distDelta = curr.odometer - prevOdo;
-        curr.calculatedL100km = Number(((curr.fuelVolume / distDelta) * 100).toFixed(2));
-      } else {
-        delete curr.calculatedL100km;
-      }
+      };
+      logs.push(targetLog);
     }
 
     localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(logs));
     this.recalculateVehicleLogs(logData.vehicleId);
+
+    if (Api.isAuthenticated()) {
+      Api.pushCloudData({ logs: [targetLog] }).catch(err => console.warn('Cloud sync error (log):', err));
+    }
   }
 
   static recalculateVehicleLogs(vehicleId) {
@@ -178,30 +157,41 @@ export class StorageManager {
     const targetLog = logs.find(l => l.id === id);
     const updatedLogs = logs.filter(l => l.id !== id);
     localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(updatedLogs));
+
     if (targetLog && targetLog.vehicleId) {
       this.recalculateVehicleLogs(targetLog.vehicleId);
+    }
+
+    if (Api.isAuthenticated()) {
+      Api.pushCloudData({ deletedLogId: id }).catch(err => console.warn('Cloud sync error (delete log):', err));
     }
   }
 
   static saveVehicle(vehicleData) {
     const vehicles = this.getVehicles();
     const existingIndex = vehicles.findIndex(v => v.id === vehicleData.id);
+    let targetVehicle;
     if (existingIndex >= 0) {
       vehicles[existingIndex] = { ...vehicles[existingIndex], ...vehicleData };
+      targetVehicle = vehicles[existingIndex];
     } else {
-      vehicles.push({
+      targetVehicle = {
         id: 'v-' + Date.now(),
         ...vehicleData
-      });
+      };
+      vehicles.push(targetVehicle);
     }
     this.saveVehicles(vehicles);
+
+    if (Api.isAuthenticated()) {
+      Api.pushCloudData({ vehicles: [targetVehicle] }).catch(err => console.warn('Cloud sync error (vehicle):', err));
+    }
   }
 
   static deleteVehicle(id) {
     let vehicles = this.getVehicles().filter(v => String(v.id) !== String(id));
-    this.saveVehicles(vehicles);
+    localStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(vehicles));
     
-    // Purge associated refuel logs and service records for this deleted vehicle
     const allLogs = this.getLogs();
     const updatedLogs = allLogs.filter(l => String(l.vehicleId) !== String(id));
     localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(updatedLogs));
@@ -217,6 +207,10 @@ export class StorageManager {
       }
     } else {
       localStorage.removeItem(STORAGE_KEYS.ACTIVE_VEHICLE_ID);
+    }
+
+    if (Api.isAuthenticated()) {
+      Api.pushCloudData({ deletedVehicleId: id }).catch(err => console.warn('Cloud sync error (delete vehicle):', err));
     }
   }
 
@@ -236,30 +230,71 @@ export class StorageManager {
     }
   }
 
-  static seedSampleServices() {
-    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify([]));
-    return [];
-  }
-
   static saveService(serviceData) {
     const services = this.getServices();
     const existingIndex = serviceData.id ? services.findIndex(s => String(s.id) === String(serviceData.id)) : -1;
+    let targetService;
 
     if (existingIndex >= 0) {
       services[existingIndex] = { ...services[existingIndex], ...serviceData };
+      targetService = services[existingIndex];
     } else {
-      services.push({
+      targetService = {
         id: 'srv-' + Date.now(),
         ...serviceData
-      });
+      };
+      services.push(targetService);
     }
 
     localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(services));
+
+    if (Api.isAuthenticated()) {
+      Api.pushCloudData({ services: [targetService] }).catch(err => console.warn('Cloud sync error (service):', err));
+    }
   }
 
   static deleteService(id) {
     const services = this.getServices().filter(s => String(s.id) !== String(id));
     localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(services));
+
+    if (Api.isAuthenticated()) {
+      Api.pushCloudData({ deletedServiceId: id }).catch(err => console.warn('Cloud sync error (delete service):', err));
+    }
+  }
+
+  // Cloud Synchronization Methods
+  static async syncFromCloud() {
+    if (!Api.isAuthenticated()) return false;
+    try {
+      const cloud = await Api.fetchCloudData();
+      if (!cloud) return false;
+
+      if (cloud.vehicles) localStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(cloud.vehicles));
+      if (cloud.logs) localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(cloud.logs));
+      if (cloud.services) localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(cloud.services));
+      if (cloud.settings) localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify({ ...DEFAULT_SETTINGS, ...cloud.settings }));
+
+      return true;
+    } catch (err) {
+      console.warn('Sync from cloud failed:', err.message);
+      return false;
+    }
+  }
+
+  static async syncLocalDataToCloud() {
+    if (!Api.isAuthenticated()) return false;
+    try {
+      const vehicles = this.getVehicles();
+      const logs = this.getLogs();
+      const services = this.getServices();
+      const settings = this.getSettings();
+
+      await Api.pushCloudData({ vehicles, logs, services, settings });
+      return true;
+    } catch (err) {
+      console.warn('Sync local data to cloud failed:', err.message);
+      return false;
+    }
   }
 
   static exportData() {
@@ -276,7 +311,7 @@ export class StorageManager {
   static importData(jsonString) {
     const data = JSON.parse(jsonString);
     if (data.vehicles && Array.isArray(data.vehicles)) {
-      this.saveVehicles(data.vehicles);
+      localStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(data.vehicles));
     }
     if (data.logs && Array.isArray(data.logs)) {
       localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(data.logs));
@@ -286,6 +321,9 @@ export class StorageManager {
     }
     if (data.settings) {
       this.saveSettings(data.settings);
+    }
+    if (Api.isAuthenticated()) {
+      this.syncLocalDataToCloud();
     }
   }
 
@@ -313,8 +351,5 @@ export class StorageManager {
     localStorage.removeItem(STORAGE_KEYS.VEHICLES);
     localStorage.removeItem(STORAGE_KEYS.SETTINGS);
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_VEHICLE_ID);
-    this.saveVehicles([]);
-    this.seedSampleLogs();
-    this.seedSampleServices();
   }
 }

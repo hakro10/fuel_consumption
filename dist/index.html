@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index-D84_oJ6I.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-B_24ouoq.css">
+  <script type="module" crossorigin src="/assets/index-DbUJxEkN.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B4vCvKTD.css">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -40,6 +40,11 @@
         <button id="btnQuickAddRefuel" class="btn btn-primary">
           <i data-lucide="plus-circle"></i>
           <span>Add Refuel</span>
+        </button>
+
+        <button id="btnUserAuth" class="btn btn-secondary small user-auth-btn" title="Cloud Sync & Account">
+          <i data-lucide="user"></i>
+          <span id="userAuthLabel">Sign In</span>
         </button>
 
         <button id="btnThemeToggle" class="btn-icon" aria-label="Toggle theme" title="Toggle Theme">
@@ -857,6 +862,66 @@
             <button type="submit" class="btn btn-primary">Save Vehicle</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Modal: User Account / Cloud Sync Auth -->
+    <div id="modalAuth" class="modal-overlay hidden">
+      <div class="modal-card auth-modal-card">
+        <div class="modal-header">
+          <h2><i data-lucide="cloud"></i> FuelPulse Cloud Sync</h2>
+          <button class="btn-close" id="btnCloseAuthModal">&times;</button>
+        </div>
+
+        <div id="authGuestView">
+          <div class="auth-tabs">
+            <button id="authTabLogin" class="auth-tab-btn active" type="button">Log In</button>
+            <button id="authTabSignup" class="auth-tab-btn" type="button">Sign Up</button>
+          </div>
+
+          <form id="formAuth" class="modal-form">
+            <div id="authErrorMessage" class="auth-error-msg hidden"></div>
+
+            <div class="form-group">
+              <label for="authEmail">Email Address</label>
+              <input type="email" id="authEmail" required placeholder="user@example.com">
+            </div>
+
+            <div class="form-group">
+              <label for="authPassword">Password</label>
+              <input type="password" id="authPassword" required minlength="6" placeholder="••••••••">
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" id="btnCancelAuthModal">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="btnSubmitAuth">Log In</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="authUserView" class="hidden">
+          <div class="user-profile-box">
+            <i data-lucide="user-check" class="user-profile-icon"></i>
+            <div>
+              <p class="user-profile-title">Logged in as</p>
+              <p id="authUserEmailDisplay" class="user-profile-email">user@example.com</p>
+            </div>
+          </div>
+
+          <div class="sync-status-box">
+            <div class="sync-status-row">
+              <span>Cloud Status:</span>
+              <span id="cloudStatusBadge" class="badge-status online"><i data-lucide="wifi"></i> Synced to Neon Cloud</span>
+            </div>
+            <button type="button" id="btnManualSync" class="btn btn-secondary small full-width">
+              <i data-lucide="refresh-cw"></i> Sync Data Now
+            </button>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" id="btnLogoutUser">Log Out</button>
+          </div>
+        </div>
       </div>
     </div>
 
