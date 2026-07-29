@@ -16,7 +16,8 @@ const DEFAULT_SETTINGS = {
   distanceUnit: 'km',
   volumeUnit: 'L',
   consumptionUnit: 'l_100km',
-  theme: 'dark'
+  theme: 'dark',
+  language: 'en'
 };
 
 export class StorageManager {

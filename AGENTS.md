@@ -160,6 +160,14 @@
   4. Upgraded `StorageManager` in `src/js/storage.js` to automatically sync data with Neon Postgres when authenticated, while preserving offline/guest `localStorage` fallback.
   5. Added thermal receipt styled Auth Modal (`#modalAuth`), user header button, and cloud sync status controls in `index.html`, `src/style.css`, and `src/js/ui.js`.
 
+### 24. Internationalization (i18n) & Multi-Language Support (EN / LT)
+- **Feature Request**: Add Lithuanian (`LT`) language option alongside English (`EN`) so users can switch application language dynamically.
+- **Solution**:
+  1. Created `src/js/i18n.js` providing structured translation dictionaries for English (`en`) and Lithuanian (`lt`).
+  2. Updated `StorageManager` settings to save `language` preference (`en` | `lt`).
+  3. Added header language toggle button `#btnLangToggle` (`EN | LT`) and language selector dropdown `#setLanguage` in `#tab-settings`.
+  4. Implemented `applyLanguage(lang)` in `src/js/ui.js` dynamically translating elements tagged with `data-i18n`.
+
 ---
 
 ## 🌿 Git Branching Strategy

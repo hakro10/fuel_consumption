@@ -43,7 +43,12 @@
 
         <button id="btnUserAuth" class="btn btn-secondary small user-auth-btn" title="Cloud Sync & Account">
           <i data-lucide="user"></i>
-          <span id="userAuthLabel">Sign In</span>
+          <span id="userAuthLabel" data-i18n="sign_in">Sign In</span>
+        </button>
+
+        <button id="btnLangToggle" class="btn btn-secondary small lang-toggle-btn" title="Switch Language (EN / LT)">
+          <i data-lucide="globe"></i>
+          <span id="langToggleLabel">EN</span>
         </button>
 
         <button id="btnThemeToggle" class="btn-icon" aria-label="Toggle theme" title="Toggle Theme">
@@ -57,31 +62,31 @@
     <nav class="nav-tabs" aria-label="Main Navigation">
       <button class="nav-tab active" data-tab="calculator">
         <i data-lucide="calculator"></i>
-        <span>Quick Calculator</span>
+        <span data-i18n="tab_calculator">Quick Calculator</span>
       </button>
       <button class="nav-tab" data-tab="logs">
         <i data-lucide="clipboard-list"></i>
-        <span>Refuel Log</span>
+        <span data-i18n="tab_logs">Refuel Log</span>
       </button>
       <button class="nav-tab" data-tab="service">
         <i data-lucide="wrench"></i>
-        <span>Service Log</span>
+        <span data-i18n="tab_service">Service Log</span>
       </button>
       <button class="nav-tab" data-tab="planner">
         <i data-lucide="navigation"></i>
-        <span>Trip Planner</span>
+        <span data-i18n="tab_planner">Trip Planner</span>
       </button>
       <button class="nav-tab" data-tab="analytics">
         <i data-lucide="line-chart"></i>
-        <span>Analytics</span>
+        <span data-i18n="tab_analytics">Analytics</span>
       </button>
       <button class="nav-tab" data-tab="vehicles">
         <i data-lucide="car"></i>
-        <span>Vehicles</span>
+        <span data-i18n="tab_vehicles">Vehicles</span>
       </button>
       <button class="nav-tab" data-tab="settings">
         <i data-lucide="settings"></i>
-        <span>Settings</span>
+        <span data-i18n="tab_settings">Settings</span>
       </button>
     </nav>
 
@@ -580,7 +585,15 @@
             <h3><i data-lucide="sliders-horizontal"></i> Unit & Currency Preferences</h3>
 
             <div class="form-group">
-              <label for="setCurrency">Preferred Currency Symbol</label>
+              <label for="setLanguage" data-i18n="language_label">Display Language</label>
+              <select id="setLanguage" class="styled-select full-width">
+                <option value="en">English (EN)</option>
+                <option value="lt">Lietuvių (LT)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="setCurrency" data-i18n="currency_label">Preferred Currency Symbol</label>
               <select id="setCurrency" class="styled-select full-width">
                 <option value="$">USD / CAD / AUD ($)</option>
                 <option value="€">Euro (€)</option>

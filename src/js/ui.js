@@ -1,5 +1,6 @@
 import { StorageManager } from './storage.js';
 import { Api } from './api.js';
+import { getTranslation } from './i18n.js';
 import { 
   calculateQuickStats, 
   estimateTripCost, 
@@ -23,6 +24,8 @@ export class UIManager {
 
   async init() {
     this.applyTheme(this.settings.theme);
+    this.applyLanguage(this.settings.language || 'en');
+    this.bindLangToggle();
     this.updateUnitLabels();
     this.populateVehicleDropdown();
     this.bindTabEvents();
@@ -84,6 +87,36 @@ export class UIManager {
       btn.addEventListener('click', () => {
         const nextTheme = this.settings.theme === 'dark' ? 'light' : 'dark';
         this.applyTheme(nextTheme);
+      });
+    }
+  }
+
+  // Language & Internationalization (EN / LT)
+  applyLanguage(lang = 'en') {
+    this.settings.language = lang;
+    StorageManager.saveSettings(this.settings);
+
+    const toggleLabel = document.getElementById('langToggleLabel');
+    if (toggleLabel) toggleLabel.textContent = lang.toUpperCase();
+
+    const langSelect = document.getElementById('setLanguage');
+    if (langSelect) langSelect.value = lang;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (key) {
+        el.textContent = getTranslation(key, lang);
+      }
+    });
+  }
+
+  bindLangToggle() {
+    const btn = document.getElementById('btnLangToggle');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const nextLang = (this.settings.language || 'en') === 'en' ? 'lt' : 'en';
+        this.applyLanguage(nextLang);
+        this.showToast(nextLang === 'lt' ? 'Kalba pakeista į Lietuvių' : 'Language changed to English');
       });
     }
   }
@@ -1321,17 +1354,20 @@ export class UIManager {
 
   // Settings & Data Management
   bindSettingsEvents() {
+    const langSelect = document.getElementById('setLanguage');
     const curSelect = document.getElementById('setCurrency');
     const distSelect = document.getElementById('setDistanceUnit');
     const volSelect = document.getElementById('setVolumeUnit');
     const consSelect = document.getElementById('setConsumptionUnit');
 
+    if (langSelect) langSelect.value = this.settings.language || 'en';
     if (curSelect) curSelect.value = this.settings.currency;
     if (distSelect) distSelect.value = this.settings.distanceUnit;
     if (volSelect) volSelect.value = this.settings.volumeUnit;
     if (consSelect) consSelect.value = this.settings.consumptionUnit || 'l_100km';
 
     document.getElementById('btnSaveSettings')?.addEventListener('click', () => {
+      if (langSelect) this.applyLanguage(langSelect.value);
       this.settings.currency = curSelect.value;
       this.settings.distanceUnit = distSelect.value;
       this.settings.volumeUnit = volSelect.value;
@@ -1342,7 +1378,7 @@ export class UIManager {
       this.renderLogsTable();
       this.renderServicesTable();
       this.renderPlanner();
-      this.showToast('Settings saved successfully!');
+      this.showToast(this.settings.language === 'lt' ? 'Nustatymai išsaugoti!' : 'Settings saved successfully!');
     });
 
     // CSV Export
