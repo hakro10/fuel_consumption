@@ -169,6 +169,14 @@
   4. Added header language toggle button `#btnLangToggle` (`EN | LT`) and language selector dropdown `#setLanguage` in `#tab-settings`.
   5. Implemented `applyLanguage(lang)` in `src/js/ui.js` dynamically translating static DOM nodes, input placeholders, modal headers, rating badges, vehicle garage cards, service reminder banners, and re-rendering active views in real-time.
 
+### 25. One-Click Refuel Receipt & Notes Inspection Modal
+- **Feature Request**: Allow users in the Refuel Log section to click directly on any refill log row to view the full receipt breakdown (station, fuel type, odometer, distance delta, volume, price, total cost, efficiency, and notes) in an authentic receipt popup, eliminating the need to side-scroll and open the edit form just to check previously added notes.
+- **Solution**:
+  1. Added `#modalRefuelReceipt` and `#receiptPaperView` in `index.html` styled with petrol station thermal paper aesthetics (Space Mono typography, dashed dividers, barcode styling, and prominent notes panel).
+  2. Added table hint bar and clickable row styles (`.log-row-clickable`, `.note-badge-inline`) in `src/style.css` so entries with notes display a clear visual badge and rows have pointer cursors and active feedback.
+  3. Implemented `openRefuelReceiptModal(logId)` and `closeRefuelReceiptModal()` in `src/js/ui.js`, with event isolation on Edit/Delete buttons (`e.stopPropagation()`) and direct shortcut button (*Edit Entry*) to quickly transition into the edit modal.
+  4. Added 100% complete multi-language translations (`en` and `lt`) in `src/js/i18n.js` with live dynamic translation support.
+
 ---
 
 ## 🌿 Git Branching Strategy

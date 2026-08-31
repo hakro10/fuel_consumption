@@ -16,9 +16,20 @@ import {
   renderFuelPriceTrendChart
 } from './charts.js';
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 export class UIManager {
   constructor() {
     this.activeTab = 'calculator';
+    this.activeReceiptLogId = null;
     this.settings = StorageManager.getSettings();
   }
 
@@ -115,6 +126,11 @@ export class UIManager {
 
     const searchService = document.getElementById('serviceSearchInput');
     if (searchService) searchService.placeholder = getTranslation('search_service_placeholder', lang);
+
+    // Refresh active receipt modal if open
+    if (this.activeReceiptLogId && !document.getElementById('modalRefuelReceipt')?.classList.contains('hidden')) {
+      this.openRefuelReceiptModal(this.activeReceiptLogId);
+    }
 
     // Refresh active view elements
     this.refreshActiveView();
@@ -475,15 +491,20 @@ export class UIManager {
 
     const currentVehicle = StorageManager.getVehicles().find(v => v.id === activeVehicleId);
     const sortedDesc = [...filtered].sort((a, b) => b.odometer - a.odometer);
+    const lang = this.settings.language || 'en';
 
     tbody.innerHTML = sortedDesc.map(l => {
       const idx = sortedAsc.findIndex(item => item.id === l.id);
       const prevOdo = idx > 0 ? sortedAsc[idx - 1].odometer : (currentVehicle ? currentVehicle.initialOdometer : null);
       const deltaKm = (prevOdo !== null && l.odometer > prevOdo) ? (l.odometer - prevOdo) : '-';
+      const hasNotes = l.notes && l.notes.trim().length > 0;
 
       return `
-        <tr>
-          <td><strong>${l.date}</strong></td>
+        <tr class="log-row-clickable" data-id="${l.id}" title="${getTranslation('receipt_click_hint', lang)}">
+          <td>
+            <strong>${l.date}</strong>
+            ${hasNotes ? `<span class="note-badge-inline" title="${escapeHtml(l.notes)}"><i data-lucide="file-text"></i> ${getTranslation('has_notes_badge', lang)}</span>` : ''}
+          </td>
           <td>${l.odometer.toLocaleString()} ${this.settings.distanceUnit}</td>
           <td>${deltaKm !== '-' ? `+${deltaKm} ${this.settings.distanceUnit}` : '-'}</td>
           <td>${l.fuelVolume} ${this.settings.volumeUnit}</td>
@@ -494,7 +515,7 @@ export class UIManager {
               ? `<span class="badge-tag">${l.calculatedL100km} L/100km</span>` 
               : `<span style="color: var(--text-dark);">-</span>`}
           </td>
-          <td>${l.station || '-'}</td>
+          <td>${escapeHtml(l.station) || '-'}</td>
           <td>
             <div style="display: flex; gap: 6px;">
               <button class="btn-icon small edit-log-btn" data-id="${l.id}" title="Edit"><i data-lucide="pencil"></i></button>
@@ -505,16 +526,28 @@ export class UIManager {
       `;
     }).join('');
 
-    // Re-initialize Lucide icons for dynamically added table buttons
+    // Re-initialize Lucide icons for dynamically added table buttons and badges
     if (window.lucide) window.lucide.createIcons();
+
+    // Event handler for clicking row to open receipt modal
+    tbody.querySelectorAll('.log-row-clickable').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const id = tr.getAttribute('data-id');
+        if (id) this.openRefuelReceiptModal(id);
+      });
+    });
 
     // Event handlers for dynamic table buttons
     tbody.querySelectorAll('.edit-log-btn').forEach(btn => {
-      btn.addEventListener('click', () => this.openRefuelModal(btn.getAttribute('data-id')));
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openRefuelModal(btn.getAttribute('data-id'));
+      });
     });
 
     tbody.querySelectorAll('.delete-log-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = btn.getAttribute('data-id');
         if (confirm('Are you sure you want to delete this refueling log entry?')) {
           StorageManager.deleteLog(id);
@@ -618,9 +651,165 @@ export class UIManager {
     document.getElementById('modalRefuel')?.classList.add('hidden');
   }
 
+  // Refuel Receipt Modal
+  openRefuelReceiptModal(logId) {
+    const modal = document.getElementById('modalRefuelReceipt');
+    const container = document.getElementById('receiptPaperView');
+    if (!modal || !container || !logId) return;
+
+    const logs = StorageManager.getLogs();
+    const log = logs.find(l => l.id === logId);
+    if (!log) return;
+
+    this.activeReceiptLogId = logId;
+
+    const vehicles = StorageManager.getVehicles();
+    const vehicle = vehicles.find(v => v.id === log.vehicleId);
+
+    // Compute previous odometer / delta
+    const vehicleLogs = logs.filter(l => l.vehicleId === log.vehicleId).sort((a, b) => a.odometer - b.odometer);
+    const idx = vehicleLogs.findIndex(l => l.id === log.id);
+    const prevOdo = idx > 0 ? vehicleLogs[idx - 1].odometer : (vehicle ? vehicle.initialOdometer : null);
+    const deltaDist = (prevOdo !== null && log.odometer > prevOdo) ? (log.odometer - prevOdo) : null;
+
+    const sym = this.settings.currency || '$';
+    const distUnit = this.settings.distanceUnit || 'km';
+    const volUnit = this.settings.volumeUnit || 'L';
+    const effUnit = this.settings.consumptionUnit || 'l_100km';
+    const lang = this.settings.language || 'en';
+
+    const vehName = vehicle ? (vehicle.name || `${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() || 'Vehicle') : 'Vehicle';
+
+    // Fuel economy calculation formatting
+    let effDisplay = '-';
+    if (log.calculatedL100km) {
+      let converted = log.calculatedL100km;
+      let unitLabel = 'L/100km';
+      if (effUnit === 'mpg_us') {
+        converted = convertEfficiency(log.calculatedL100km, UNITS.EFFICIENCY.L_PER_100KM, UNITS.EFFICIENCY.MPG_US);
+        unitLabel = 'MPG (US)';
+      } else if (effUnit === 'mpg_uk') {
+        converted = convertEfficiency(log.calculatedL100km, UNITS.EFFICIENCY.L_PER_100KM, UNITS.EFFICIENCY.MPG_UK);
+        unitLabel = 'MPG (UK)';
+      } else if (effUnit === 'km_l') {
+        converted = convertEfficiency(log.calculatedL100km, UNITS.EFFICIENCY.L_PER_100KM, UNITS.EFFICIENCY.KM_PER_L);
+        unitLabel = 'km/L';
+      }
+      effDisplay = `${converted.toFixed(2)} ${unitLabel}`;
+    }
+
+    const costPerDistVal = (deltaDist && deltaDist > 0) ? (log.totalCost / deltaDist) * 100 : null;
+    const costPerDistDisplay = costPerDistVal ? `${formatCurrency(costPerDistVal, sym)} / 100 ${distUnit}` : '-';
+
+    const isFull = log.isFullTank !== false;
+    const tankStatusText = isFull ? getTranslation('receipt_tank_full', lang) : getTranslation('receipt_tank_partial', lang);
+    const notes = (log.notes || '').trim();
+
+    container.innerHTML = `
+      <div class="receipt-header-center">
+        <div class="receipt-title-banner">${getTranslation('receipt_brand_header', lang)}</div>
+        <div class="receipt-station-name">${escapeHtml(log.station || 'PETROL STATION')}</div>
+        <div class="receipt-meta-sub">
+          <span>${log.date}</span> &bull; <span>${escapeHtml(vehName)}</span>
+        </div>
+      </div>
+
+      <div class="receipt-dashed-line"></div>
+
+      <div class="receipt-line-item">
+        <span class="receipt-label">${getTranslation('receipt_fuel_type', lang)}</span>
+        <span class="receipt-val">${escapeHtml(log.fuelType || 'Fuel')}</span>
+      </div>
+
+      <div class="receipt-line-item">
+        <span class="receipt-label">${getTranslation('receipt_odometer', lang)}</span>
+        <span class="receipt-val">${log.odometer.toLocaleString()} ${distUnit}</span>
+      </div>
+
+      <div class="receipt-line-item">
+        <span class="receipt-label">${getTranslation('receipt_distance', lang)}</span>
+        <span class="receipt-val">${deltaDist !== null ? `+${deltaDist.toLocaleString()} ${distUnit}` : '-'}</span>
+      </div>
+
+      <div class="receipt-line-item">
+        <span class="receipt-label">${getTranslation('receipt_volume', lang)}</span>
+        <span class="receipt-val">${log.fuelVolume} ${volUnit}</span>
+      </div>
+
+      <div class="receipt-line-item">
+        <span class="receipt-label">${getTranslation('receipt_price_unit', lang)}</span>
+        <span class="receipt-val">${sym}${log.pricePerUnit} / ${volUnit}</span>
+      </div>
+
+      <div class="receipt-line-item">
+        <span class="receipt-label">${getTranslation('receipt_tank_status', lang)}</span>
+        <span class="receipt-val">
+          <span class="badge-tag ${isFull ? 'badge-primary' : 'badge-danger'}">${tankStatusText}</span>
+        </span>
+      </div>
+
+      <div class="receipt-line-item">
+        <span class="receipt-label">${getTranslation('receipt_fuel_economy', lang)}</span>
+        <span class="receipt-val">${log.calculatedL100km ? `<span class="badge-tag">${effDisplay}</span>` : '-'}</span>
+      </div>
+
+      <div class="receipt-line-item">
+        <span class="receipt-label">${getTranslation('receipt_cost_per_dist', lang)}</span>
+        <span class="receipt-val">${costPerDistDisplay}</span>
+      </div>
+
+      <div class="receipt-dashed-line"></div>
+
+      <div class="receipt-total-box">
+        <span>${getTranslation('receipt_total_amount', lang)}</span>
+        <span class="total-amount">${formatCurrency(log.totalCost, sym)}</span>
+      </div>
+
+      <div class="receipt-dashed-line"></div>
+
+      <div class="receipt-notes-panel">
+        <div class="receipt-notes-panel-header">
+          <i data-lucide="file-text"></i>
+          <span>${getTranslation('receipt_notes_title', lang)}</span>
+        </div>
+        <div class="receipt-notes-panel-content ${!notes ? 'receipt-notes-empty' : ''}">
+          ${notes ? escapeHtml(notes) : getTranslation('receipt_no_notes', lang)}
+        </div>
+      </div>
+
+      <div class="receipt-barcode-footer">
+        <div class="receipt-barcode-lines">|||| | ||||| || |||| ||||| |||</div>
+        <div class="receipt-footer-msg">${getTranslation('receipt_thank_you', lang)}</div>
+      </div>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+    modal.classList.remove('hidden');
+  }
+
+  closeRefuelReceiptModal() {
+    document.getElementById('modalRefuelReceipt')?.classList.add('hidden');
+    this.activeReceiptLogId = null;
+  }
+
   bindRefuelModalEvents() {
     document.getElementById('btnCloseRefuelModal')?.addEventListener('click', () => this.closeRefuelModal());
     document.getElementById('btnCancelRefuelModal')?.addEventListener('click', () => this.closeRefuelModal());
+
+    // Receipt Modal Event Handlers
+    document.getElementById('btnCloseRefuelReceiptModal')?.addEventListener('click', () => this.closeRefuelReceiptModal());
+    document.getElementById('btnCloseRefuelReceiptModalBtn')?.addEventListener('click', () => this.closeRefuelReceiptModal());
+    document.getElementById('modalRefuelReceipt')?.addEventListener('click', (e) => {
+      if (e.target.id === 'modalRefuelReceipt') this.closeRefuelReceiptModal();
+    });
+
+    document.getElementById('btnEditFromReceiptModal')?.addEventListener('click', () => {
+      const logId = this.activeReceiptLogId;
+      this.closeRefuelReceiptModal();
+      if (logId) {
+        this.openRefuelModal(logId);
+      }
+    });
 
     document.getElementById('formRefuel')?.addEventListener('submit', (e) => {
       e.preventDefault();

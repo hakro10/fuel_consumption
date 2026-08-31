@@ -226,6 +226,11 @@
           </div>
         </div>
 
+        <div class="table-hint-bar">
+          <i data-lucide="info"></i>
+          <span data-i18n="receipt_click_hint">Tip: Click any row to view full receipt & notes</span>
+        </div>
+
         <!-- Logs Table -->
         <div class="glass-card table-container">
           <table class="styled-table">
@@ -663,6 +668,25 @@
       </section>
 
     </main>
+
+    <!-- MODAL: REFUEL RECEIPT DETAILS -->
+    <div id="modalRefuelReceipt" class="modal-overlay hidden">
+      <div class="glass-card modal-container receipt-modal-container">
+        <div class="modal-header">
+          <h3><i data-lucide="receipt"></i> <span data-i18n="modal_refuel_receipt_title">Refuel Receipt Details</span></h3>
+          <button class="modal-close btn-icon" id="btnCloseRefuelReceiptModal">&times;</button>
+        </div>
+        <div class="receipt-paper-view" id="receiptPaperView">
+          <!-- Dynamically populated -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCloseRefuelReceiptModalBtn" data-i18n="btn_close_receipt">Close</button>
+          <button type="button" class="btn btn-primary" id="btnEditFromReceiptModal">
+            <i data-lucide="pencil"></i> <span data-i18n="btn_edit_entry">Edit Entry</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- MODAL: ADD / EDIT REFUEL LOG -->
     <div id="modalRefuel" class="modal-overlay hidden">

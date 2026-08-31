@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index-C2-EehhS.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-D3fSyMJi.css">
+  <script type="module" crossorigin src="/assets/index-D7zyAdLj.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CRsdd-xM.css">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -225,6 +225,11 @@
               <i data-lucide="download"></i> <span data-i18n="btn_export_csv">Export CSV</span>
             </button>
           </div>
+        </div>
+
+        <div class="table-hint-bar">
+          <i data-lucide="info"></i>
+          <span data-i18n="receipt_click_hint">Tip: Click any row to view full receipt & notes</span>
         </div>
 
         <!-- Logs Table -->
@@ -664,6 +669,25 @@
       </section>
 
     </main>
+
+    <!-- MODAL: REFUEL RECEIPT DETAILS -->
+    <div id="modalRefuelReceipt" class="modal-overlay hidden">
+      <div class="glass-card modal-container receipt-modal-container">
+        <div class="modal-header">
+          <h3><i data-lucide="receipt"></i> <span data-i18n="modal_refuel_receipt_title">Refuel Receipt Details</span></h3>
+          <button class="modal-close btn-icon" id="btnCloseRefuelReceiptModal">&times;</button>
+        </div>
+        <div class="receipt-paper-view" id="receiptPaperView">
+          <!-- Dynamically populated -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCloseRefuelReceiptModalBtn" data-i18n="btn_close_receipt">Close</button>
+          <button type="button" class="btn btn-primary" id="btnEditFromReceiptModal">
+            <i data-lucide="pencil"></i> <span data-i18n="btn_edit_entry">Edit Entry</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- MODAL: ADD / EDIT REFUEL LOG -->
     <div id="modalRefuel" class="modal-overlay hidden">
