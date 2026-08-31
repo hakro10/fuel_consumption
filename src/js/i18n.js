@@ -61,6 +61,8 @@ export const TRANSLATIONS = {
     th_actions: 'ACTIONS',
     no_logs_found: 'No refuel logs found for this vehicle.',
     btn_add_first_log: 'Add First Log',
+    receipt_click_hint: 'Tip: Click any row to view full receipt & notes',
+    has_notes_badge: 'NOTE',
 
     // Tab 3: Service Log
     service_header_title: 'VEHICLE SERVICE & MAINTENANCE TRACKER',
@@ -161,6 +163,23 @@ export const TRANSLATIONS = {
     // Modals
     modal_add_refuel_title: 'Add Refuel Entry',
     modal_edit_refuel_title: 'Edit Refuel Entry',
+    modal_refuel_receipt_title: 'Refuel Receipt Details',
+    receipt_brand_header: 'FUELPULSE OFFICIAL RECEIPT',
+    receipt_vehicle_label: 'Vehicle',
+    receipt_fuel_type: 'Fuel Type',
+    receipt_odometer: 'Odometer',
+    receipt_distance: 'Distance Traveled',
+    receipt_volume: 'Volume Refueled',
+    receipt_price_unit: 'Price Per Unit',
+    receipt_total_amount: 'TOTAL PAID',
+    receipt_fuel_economy: 'Fuel Economy',
+    receipt_cost_per_dist: 'Cost Per Distance',
+    receipt_tank_status: 'Tank Status',
+    receipt_tank_full: 'FULL TANK',
+    receipt_tank_partial: 'PARTIAL REFILL',
+    receipt_notes_title: 'NOTES & REMARKS',
+    receipt_no_notes: 'No notes recorded for this refuel.',
+    receipt_thank_you: '*** DRIVE SAFELY & THANK YOU ***',
     modal_add_service_title: 'Add Service Record',
     modal_edit_service_title: 'Edit Service Record',
     modal_add_vehicle_title: 'Add New Vehicle',
@@ -194,6 +213,8 @@ export const TRANSLATIONS = {
 
     // Modal Buttons
     btn_cancel: 'Cancel',
+    btn_close_receipt: 'Close',
+    btn_edit_entry: 'Edit Entry',
     btn_save: 'Save',
     btn_save_refuel: 'Save Refuel Log',
     btn_save_service: 'Save Service Record',
@@ -263,6 +284,8 @@ export const TRANSLATIONS = {
     th_actions: 'VEIKSMAI',
     no_logs_found: 'Šiam automobiliui degalų pylimo įrašų nerasta.',
     btn_add_first_log: 'Pridėti Pirmą Įrašą',
+    receipt_click_hint: 'Patarimas: Spustelėkite bet kurią eilutę, kad peržiūrėtumėte kvitą ir pastabas',
+    has_notes_badge: 'PASTABA',
 
     // Tab 3: Service Log
     service_header_title: 'AUTOMOBILIO SERVISO IR REMONTO REGISTRAS',
@@ -363,6 +386,23 @@ export const TRANSLATIONS = {
     // Modals
     modal_add_refuel_title: 'Pridėti degalų pylimo įrašą',
     modal_edit_refuel_title: 'Redaguoti degalų pylimo įrašą',
+    modal_refuel_receipt_title: 'Degalų Pylimo Kvitas',
+    receipt_brand_header: 'FUELPULSE OFICIALUS KVITAS',
+    receipt_vehicle_label: 'Automobilis',
+    receipt_fuel_type: 'Degalų Rūšis',
+    receipt_odometer: 'Spidometro Rida',
+    receipt_distance: 'Nuvažiuotas Atstumas',
+    receipt_volume: 'Įpiltas Kiekis',
+    receipt_price_unit: 'Kaina Už Vienetą',
+    receipt_total_amount: 'VISO APMOKĖTA',
+    receipt_fuel_economy: 'Degalų Sąnaudos',
+    receipt_cost_per_dist: 'Kaina Atstumui',
+    receipt_tank_status: 'Bako Būsena',
+    receipt_tank_full: 'PILNAS BAKAS',
+    receipt_tank_partial: 'DALINIS PYLIMAS',
+    receipt_notes_title: 'PASTABOS IR KOMENTARAI',
+    receipt_no_notes: 'Pastabų šiam pylimo įrašui nėra.',
+    receipt_thank_you: '*** VAŽIUOKITE SAUGIAI IR AČIŪ ***',
     modal_add_service_title: 'Pridėti serviso įrašą',
     modal_edit_service_title: 'Redaguoti serviso įrašą',
     modal_add_vehicle_title: 'Pridėti naują automobilį',
@@ -396,6 +436,8 @@ export const TRANSLATIONS = {
 
     // Modal Buttons
     btn_cancel: 'Atšaukti',
+    btn_close_receipt: 'Uždaryti',
+    btn_edit_entry: 'Redaguoti Įrašą',
     btn_save: 'Išsaugoti',
     btn_save_refuel: 'Išsaugoti Degalų Žurnalą',
     btn_save_service: 'Išsaugoti Serviso Įrašą',
